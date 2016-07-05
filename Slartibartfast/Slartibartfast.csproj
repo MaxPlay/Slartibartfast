@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\ColorExtension.cs" />
+    <Compile Include="Extensions\MathHelper.cs" />
     <Compile Include="Extensions\RandomExtension.cs" />
     <Compile Include="PlanetGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

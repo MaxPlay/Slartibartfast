@@ -56,7 +56,7 @@ namespace Slartibartfast.Textures
             {
                 for (int x = 0; x < width; x++)
                 {
-                    color[y * width + x] = ColorExtension.Lerp(System.Drawing.Color.Black, System.Drawing.Color.White, (array[x, y] - lowestValue) / (highestValue - lowestValue));
+                    color[y * width + x] = ColorExtension.Lerp(System.Drawing.Color.Black, System.Drawing.Color.White, (highestValue - lowestValue) != 0 ? (array[x, y] - lowestValue) / (highestValue - lowestValue) : 0);
                 }
             }
         }

@@ -30,7 +30,7 @@ namespace Slartibartfast.Generators
         public float[,] Generate(int size, int seed = 0, float minElevation = 0, float maxElevation = 255, float noise = 0.0f)
         {
             if (seed != 0)
-                random = new Random();
+                random = new Random(seed);
 
             // Fail if grid size is not of the form (2 ^ n) - 1 or if min/max values are invalid
             size++;
@@ -42,10 +42,10 @@ namespace Slartibartfast.Generators
             float[,] grid = new float[size, size];
 
             // Seed the first four corners
-            grid[0, 0] = random.Range(minElevation, maxElevation);
-            grid[s, 0] = random.Range(minElevation, maxElevation);
-            grid[0, s] = random.Range(minElevation, maxElevation);
-            grid[s, s] = random.Range(minElevation, maxElevation);
+            grid[0, 0] = 0;//random.Range(minElevation, maxElevation);
+            grid[s, 0] = 0;//random.Range(minElevation, maxElevation);
+            grid[0, s] = 0; //random.Range(minElevation, maxElevation);
+            grid[s, s] = 0; //random.Range(minElevation, maxElevation);
 
             /*
 			 * Use temporary named variables to simplify equations
