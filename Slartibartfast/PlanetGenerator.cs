@@ -16,45 +16,36 @@ namespace Slartibartfast
         {
             Simplex simplexNoise = new Simplex(256, 0.1, 5000);
 
-            double xStart = 0;
-            double xEnd = 200;
-            double yStart = 0;
-            double yEnd = 200;
-
-            int xResolution = 256;
-            int yResolution = 256;
+            int xResolution = 1024;
+            int yResolution = 1024;
 
             int frequency = 128;
 
             float[,] height = new float[xResolution, yResolution];
 
+            int steps = 0;
+            double maxsteps = xResolution * yResolution;
+            int percent = 0;
+
             for (int x = 0; x < xResolution; x++)
             {
                 for (int y = 0; y < yResolution; y++)
                 {
-                    /*double s = i / (double)xResolution;
-                    double t = j / (double)yResolution;
-                    double dx = xEnd - xStart;
-                    double dy = yEnd - yStart;
-
-                    double nx = xStart + Math.Cos(s * 2 * Math.PI) * dx / (2 * Math.PI);
-                    double ny = yStart + Math.Cos(t * 2 * Math.PI) * dy / (2 * Math.PI);
-                    double nz = xStart + Math.Sin(s * 2 * Math.PI) * dx / (2 * Math.PI);
-                    double nw = yStart + Math.Sin(t * 2 * Math.PI) * dy / (2 * Math.PI);
-
-                    float h = 0;
-                    for (int c = 1; c < frequency; c *= 2)
+                    if (percent < (steps / maxsteps) * 100)
                     {
-                        float dh = (float)(0.5 * (1 + simplexNoise.GetNoise(nx * frequency / c, ny * frequency / c, nz * frequency / c, nw * frequency / c)));
-                        h = dh + 0.5f * h;
+                        percent++;
+                        Console.Clear();
+                        Console.WriteLine("Generating Tileable FBM Simplex Noise.");
+                        Console.WriteLine("{0}%", percent);
                     }
-                    */
-                    height[x, y] = (float)simplexNoise.GetTileableNoise(x, y, xStart, xEnd, yStart, yEnd, xResolution, yResolution, frequency);
+                    steps++;
+                    height[x, y] = (float)simplexNoise.GetTileableFBM(x, y, 0, 256, 0, 256, xResolution, yResolution, frequency);
                 }
             }
             //DiamondSquare ds = new DiamondSquare();
             //float[,] height = ds.Generate(1024, 1024);
-            Texture tex = new Texture(256, 256, ref height);
+            Console.WriteLine("Writing File.");
+            Texture tex = new Texture(1024, 1024, ref height);
             tex.SaveToFile("height.png");
         }
 
