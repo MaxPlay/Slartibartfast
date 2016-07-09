@@ -108,8 +108,102 @@ namespace Slartibartfast.Generators
             return GetNoise(nx, ny, nz, nw);
         }
 
+        public double GetTileableNoise(int x, int y, double width, double height, double frequency, double zoom)
+        {
+            double tileBeginX = 0;
+            double tileEndX = width * zoom;
+            double tileBeginY = 0;
+            double tileEndY = height * zoom;
+
+            double s = x / width;
+            double t = y / height;
+            double dx = tileEndX - tileBeginX;
+            double dy = tileEndY - tileBeginY;
+
+            double nx = tileBeginX + Math.Cos(s * 2 * Math.PI) * dx / (2 * Math.PI);
+            double ny = tileBeginY + Math.Cos(t * 2 * Math.PI) * dy / (2 * Math.PI);
+            double nz = tileBeginX + Math.Sin(s * 2 * Math.PI) * dx / (2 * Math.PI);
+            double nw = tileBeginY + Math.Sin(t * 2 * Math.PI) * dy / (2 * Math.PI);
+
+            return GetNoise(nx, ny, nz, nw);
+        }
+
+        public double GetTileableNoise(int x, int y, double width, double height, double frequency)
+        {
+            double tileBeginX = 0;
+            double tileEndX = width;
+            double tileBeginY = 0;
+            double tileEndY = height;
+
+            double s = x / width;
+            double t = y / height;
+            double dx = tileEndX - tileBeginX;
+            double dy = tileEndY - tileBeginY;
+
+            double nx = tileBeginX + Math.Cos(s * 2 * Math.PI) * dx / (2 * Math.PI);
+            double ny = tileBeginY + Math.Cos(t * 2 * Math.PI) * dy / (2 * Math.PI);
+            double nz = tileBeginX + Math.Sin(s * 2 * Math.PI) * dx / (2 * Math.PI);
+            double nw = tileBeginY + Math.Sin(t * 2 * Math.PI) * dy / (2 * Math.PI);
+
+            return GetNoise(nx, ny, nz, nw);
+        }
+
         public double GetTileableFBM(int x, int y, double tileBeginX, double tileEndX, double tileBeginY, double tileEndY, double width, double height, double frequency)
         {
+            double s = x / width;
+            double t = y / height;
+            double dx = tileEndX - tileBeginX;
+            double dy = tileEndY - tileBeginY;
+
+            double nx = tileBeginX + Math.Cos(s * 2 * Math.PI) * dx / (2 * Math.PI);
+            double ny = tileBeginY + Math.Cos(t * 2 * Math.PI) * dy / (2 * Math.PI);
+            double nz = tileBeginX + Math.Sin(s * 2 * Math.PI) * dx / (2 * Math.PI);
+            double nw = tileBeginY + Math.Sin(t * 2 * Math.PI) * dy / (2 * Math.PI);
+
+            float h = 0;
+            for (int c = 1; c < frequency; c *= 2)
+            {
+                float dh = (float)(0.5 * (1 + GetNoise(nx * frequency / c, ny * frequency / c, nz * frequency / c, nw * frequency / c)));
+                h = dh + 0.5f * h;
+            }
+
+            return h;
+        }
+
+        public double GetTileableFBM(int x, int y, double width, double height, double frequency)
+        {
+            double tileBeginX = 0;
+            double tileEndX = width;
+            double tileBeginY = 0;
+            double tileEndY = height;
+
+            double s = x / width;
+            double t = y / height;
+            double dx = tileEndX - tileBeginX;
+            double dy = tileEndY - tileBeginY;
+
+            double nx = tileBeginX + Math.Cos(s * 2 * Math.PI) * dx / (2 * Math.PI);
+            double ny = tileBeginY + Math.Cos(t * 2 * Math.PI) * dy / (2 * Math.PI);
+            double nz = tileBeginX + Math.Sin(s * 2 * Math.PI) * dx / (2 * Math.PI);
+            double nw = tileBeginY + Math.Sin(t * 2 * Math.PI) * dy / (2 * Math.PI);
+
+            float h = 0;
+            for (int c = 1; c < frequency; c *= 2)
+            {
+                float dh = (float)(0.5 * (1 + GetNoise(nx * frequency / c, ny * frequency / c, nz * frequency / c, nw * frequency / c)));
+                h = dh + 0.5f * h;
+            }
+
+            return h;
+        }
+
+        public double GetTileableFBM(int x, int y, double width, double height, double frequency, double zoom)
+        {
+            double tileBeginX = 0;
+            double tileEndX = width * zoom;
+            double tileBeginY = 0;
+            double tileEndY = height * zoom;
+
             double s = x / width;
             double t = y / height;
             double dx = tileEndX - tileBeginX;
