@@ -54,6 +54,9 @@
     <Compile Include="Generators\Simplex.cs" />
     <Compile Include="Generators\Octave.cs" />
     <Compile Include="PlanetGenerator.cs" />
+    <Compile Include="Planets\Atmosphere.cs" />
+    <Compile Include="Planets\Planet.cs" />
+    <Compile Include="Planets\Sun.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
