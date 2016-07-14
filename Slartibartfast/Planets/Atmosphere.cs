@@ -2,13 +2,13 @@
 {
     public class Atmosphere
     {
-        public const float EARTH_PRESSURE_AT_SEALEVEL = 101325;
-        public const float EARTH_THICKNESS = 10000;
+        public const float EARTH_PRESSURE_AT_SEALEVEL = 1.01325f;
+        public const float EARTH_SCALE_HEIGHT = 8.5f;
 
         private float pressureAtSealevel;
 
         /// <summary>
-        /// The pressure at sealevel in Pa.
+        /// The pressure at sealevel in bars.
         /// </summary>
         public float PressureAtSealevel
         {
@@ -16,15 +16,15 @@
             set { pressureAtSealevel = value; }
         }
         
-        private float thickness;
+        private float scaleHeight;
 
         /// <summary>
-        /// The thickness of the atmosphere in kilometers from sealevel to outer space.
+        /// The scale height of the atmosphere.
         /// </summary>
-        public float Thickness
+        public float ScaleHeight
         {
-            get { return thickness; }
-            set { thickness = value; }
+            get { return scaleHeight; }
+            set { scaleHeight = value; }
         }
 
     }

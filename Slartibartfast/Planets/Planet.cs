@@ -20,6 +20,14 @@ namespace Slartibartfast.Planets
         /// The distance of the earth to the sun in AU.
         /// </summary>
         public const float EARTH_DISTANCE_TO_SUN = 1;
+        /// <summary>
+        /// The distance of the earth to the sun in AU.
+        /// </summary>
+        public const int EARTH_AGE = 4543;
+        /// <summary>
+        /// The distance of the earth to the sun in AU.
+        /// </summary>
+        public const int EARTH_TECTONIC_PLATES_COUNT = 7;
 
         /// <summary>
         /// The distance to the sun in AU. 1 AU = the earths distance to the sun.
@@ -67,7 +75,7 @@ namespace Slartibartfast.Planets
         private int age;
 
         /// <summary>
-        /// The age of the planet in years.
+        /// The age of the planet in billion years.
         /// </summary>
         public int Age
         {
@@ -75,5 +83,21 @@ namespace Slartibartfast.Planets
             set { age = value; }
         }
 
+        private int tectonicPlatesCount;
+
+        public int TectonicPlatesCount
+        {
+            get { return tectonicPlatesCount; }
+            set { tectonicPlatesCount = value; }
+        }
+
+        private List<TectonicPlate> tectonicPlates;
+        private SurfaceTexel[,] surface;
+
+        public Planet(PlanetSettings settings)
+        {
+            // One texel for every degree in geographical coordinates.
+            surface = new SurfaceTexel[190, 360];
+        }
     }
 }
