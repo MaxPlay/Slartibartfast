@@ -103,7 +103,7 @@ namespace Slartibartfast.Planets
             this.distanceToSun = settings.DistanceToSun;
             this.mass = settings.Mass;
             this.radius = settings.Radius;
-            this.tectonicPlatesCount = settings.TectonicPlatesCount;
+            this.tectonicPlatesCount = 20;//settings.TectonicPlatesCount;
 
             // One texel for every degree in geographical coordinates.
             surface = new SurfaceTexel[360, 180];
@@ -112,15 +112,27 @@ namespace Slartibartfast.Planets
 
         public void SetSurfaceTexel(int CoordinateX, int CoordinateY, SurfaceTexel texel)
         {
-            while (CoordinateY >= 90)
+            CoordinateY += 90;
+
+            int yRepeat = 0;
+
+            while (CoordinateY < 0)
             {
+                yRepeat++;
+                CoordinateY += 180;
+                CoordinateX += 180;
+            }
+
+            while (CoordinateY >= 180)
+            {
+                yRepeat--;
                 CoordinateY -= 180;
                 CoordinateX += 180;
             }
-            while (CoordinateY < -90)
+
+            if (yRepeat % 2 == 1)
             {
-                CoordinateY += 180;
-                CoordinateX += 180;
+                CoordinateY = 180 - CoordinateY;
             }
 
             while (CoordinateX < -180)
@@ -129,21 +141,33 @@ namespace Slartibartfast.Planets
             }
 
             int x = (CoordinateX + 180) % 360;
-            int y = CoordinateY + 90;
+            int y = CoordinateY;
             surface[x, y] = texel;
         }
 
         public SurfaceTexel GetSurfaceTexel(int CoordinateX, int CoordinateY)
         {
-            while (CoordinateY >= 90)
+            CoordinateY += 90;
+
+            int yRepeat = 0;
+
+            while (CoordinateY < 0)
             {
+                yRepeat++;
+                CoordinateY += 180;
+                CoordinateX += 180;
+            }
+
+            while (CoordinateY >= 180)
+            {
+                yRepeat--;
                 CoordinateY -= 180;
                 CoordinateX += 180;
             }
-            while (CoordinateY < -90)
+
+            if (yRepeat % 2 == 1)
             {
-                CoordinateY += 180;
-                CoordinateX += 180;
+                CoordinateY = 180-CoordinateY;
             }
 
             while (CoordinateX < -180)
@@ -152,7 +176,7 @@ namespace Slartibartfast.Planets
             }
 
             int x = (CoordinateX + 180) % 360;
-            int y = CoordinateY + 90;
+            int y = CoordinateY;
             return surface[x, y];
         }
 
