@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Slartibartfast.Vectors;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,6 +23,21 @@ namespace Slartibartfast.Extensions
         public static float Range(this Random r, float rMin, float rMax)
         {
             return rMin + (float)r.NextDouble() * (rMax - rMin);
+        }
+
+        public static Vector2 Vector2(this Random r)
+        {
+            return new Vector2((float)r.NextDouble() * 2 - 1, (float)r.NextDouble() * 2 - 1);
+        }
+
+        public static Vector3 Vector3(this Random r)
+        {
+            return new Vector3((float)r.NextDouble() * 2 - 1, (float)r.NextDouble() * 2 - 1, (float)r.NextDouble() * 2 - 1);
+        }
+
+        public static Color Color(this Random r)
+        {
+            return System.Drawing.Color.FromArgb(255, r.Next(0, 256), r.Next(0, 256), r.Next(0, 256));
         }
     }
 }
