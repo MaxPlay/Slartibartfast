@@ -108,6 +108,7 @@ namespace Slartibartfast.Planets
             // One texel for every degree in geographical coordinates.
             surface = new SurfaceTexel[360, 180];
             GenerateTectonicPlates();
+            GenerateBorders();
         }
 
         public void SetSurfaceTexel(int CoordinateX, int CoordinateY, SurfaceTexel texel)
@@ -167,7 +168,7 @@ namespace Slartibartfast.Planets
 
             if (yRepeat % 2 == 1)
             {
-                CoordinateY = 180-CoordinateY;
+                CoordinateY = 180 - CoordinateY;
             }
 
             while (CoordinateX < -180)
@@ -196,11 +197,12 @@ namespace Slartibartfast.Planets
                 {
                     SurfaceTexel texel = new SurfaceTexel();
                     texel.TectonicPlateID = -1;
+                    texel.Distance = -1;
                     surface[x, y] = texel;
                 }
             }
 
-            Random rand = new Random(DateTime.Now.Millisecond);
+            Random rand = new Random();// DateTime.Now.Millisecond);
             for (int i = 0; i < tectonicPlatesCount; i++)
             {
                 tectonicPlates.Add(new TectonicPlate(i));
@@ -209,8 +211,11 @@ namespace Slartibartfast.Planets
 
                 SurfaceTexel texel = new SurfaceTexel();
                 texel.TectonicPlateID = i;
+                texel.Distance = 0;
                 SetSurfaceTexel(x, y, texel);
             }
+
+            int[,] distance = new int[360, 180];
 
             int emptyTiles = 180 * 360 - this.tectonicPlatesCount;
             while (emptyTiles > 0)
@@ -221,19 +226,24 @@ namespace Slartibartfast.Planets
                 {
                     for (int x = -180; x < 180; x++)
                     {
-                        List<int> possiblePlates = new List<int>();
+                        List<SurfaceTexel> possiblePlates = new List<SurfaceTexel>();
                         if (GetSurfaceTexel(x, y).TectonicPlateID != -1)
                         {
                             continue;
                         }
 
-                        possiblePlates.Add(GetSurfaceTexel(x, y - 1).TectonicPlateID);
-                        possiblePlates.Add(GetSurfaceTexel(x, y + 1).TectonicPlateID);
-                        possiblePlates.Add(GetSurfaceTexel(x - 1, y).TectonicPlateID);
-                        possiblePlates.Add(GetSurfaceTexel(x + 1, y).TectonicPlateID);
+                        possiblePlates.Add(GetSurfaceTexel(x, y - 1));
+                        possiblePlates.Add(GetSurfaceTexel(x, y + 1));
+                        possiblePlates.Add(GetSurfaceTexel(x - 1, y));
+                        possiblePlates.Add(GetSurfaceTexel(x + 1, y));
 
                         SurfaceTexel texel = new SurfaceTexel();
-                        texel.TectonicPlateID = possiblePlates[rand.Next(4)];
+
+                        int target = rand.Next(4);
+
+                        texel.TectonicPlateID = possiblePlates[target].TectonicPlateID;
+                        texel.Distance = possiblePlates[target].Distance + 1;
+
                         SetSurfaceTexel(x, y, texel);
                         if (texel.TectonicPlateID != -1)
                             emptyTiles--;
@@ -268,6 +278,83 @@ namespace Slartibartfast.Planets
             }
 
             return surf;
+        }
+
+        public Color[,] GetDistances()
+        {
+            Color[,] surf = new Color[360, 180];
+            float max = 0;
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    if (surface[x, y].Distance > max)
+                        max = surface[x, y].Distance;
+                }
+            }
+
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    int col = 255-(int)((surface[x, y].Distance / max) * 255);
+                    surf[x, y] = Color.FromArgb(255, col, col, col);
+                }
+            }
+
+            return surf;
+        }
+
+        public void GenerateBorders()
+        {
+            int[,] distance = new int[360, 180];
+
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    distance[x, y] = -1;
+                    y -= 90;
+                    x -= 180;
+                    SurfaceTexel texel = GetSurfaceTexel(x, y);
+                    int plateID = texel.TectonicPlateID;
+
+                    int[] plates = new int[4];
+
+                    plates[0] = GetSurfaceTexel(x - 1, y).TectonicPlateID;
+                    plates[1] = GetSurfaceTexel(x + 1, y).TectonicPlateID;
+                    plates[2] = GetSurfaceTexel(x, y - 1).TectonicPlateID;
+                    plates[3] = GetSurfaceTexel(x, y + 1).TectonicPlateID;
+
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (plates[i] != plateID)
+                        {
+                            distance[x + 180, y + 90] = 0;
+                            continue;
+                        }
+                    }
+                    y += 90;
+                    x += 180;
+                }
+            }
+
+            this.border = distance;
+        }
+
+        int[,] border;
+
+        public Color[,] GetBorder()
+        {
+            Color[,] c = new Color[360, 180];
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    c[x, y] = border[x, y] == 0 ? Color.Black : Color.White;
+                }
+            }
+            return c;
         }
     }
 }

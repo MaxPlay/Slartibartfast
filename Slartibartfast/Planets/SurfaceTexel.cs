@@ -9,5 +9,14 @@
             get { return tectonicPlateID; }
             set { tectonicPlateID = value; }
         }
+
+        private int distance;
+
+        public int Distance
+        {
+            get { return distance; }
+            set { distance = value; }
+        }
+
     }
 }

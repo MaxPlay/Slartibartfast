@@ -51,7 +51,7 @@ namespace Slartibartfast
             tex.SaveToFile("height.png");*/
 
             Planet planet = new Planet(PlanetSettings.Earth());
-            Color[,] plates = planet.GetTectonicPlates();
+            Color[,] plates = planet.GetDistances();
             Texture tex = new Texture(360, 180, ref plates);
             tex.SaveToFile("plates.png");
         }
