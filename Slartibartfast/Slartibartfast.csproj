@@ -73,9 +73,9 @@
     </Compile>
     <Compile Include="Generators\DiamondSquare.cs" />
     <Compile Include="Textures\Texture.cs" />
-    <Compile Include="Vectors\Point.cs" />
-    <Compile Include="Vectors\Vector2.cs" />
-    <Compile Include="Vectors\Vector3.cs" />
+    <Compile Include="Math\Point.cs" />
+    <Compile Include="Math\Vector2.cs" />
+    <Compile Include="Math\Vector3.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\Settings.settings">

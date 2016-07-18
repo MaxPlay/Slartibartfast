@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Slartibartfast.Vectors
+namespace Slartibartfast.Math
 {
     public class Point
     {

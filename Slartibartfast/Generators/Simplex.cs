@@ -20,7 +20,7 @@ namespace Slartibartfast.Generators
             this.seed = seed;
 
             //recieves a number (eg 128) and calculates what power of 2 it is (eg 2^7)
-            int numberOfOctaves = (int)Math.Ceiling(Math.Log10(largestFeature) / Math.Log10(2));
+            int numberOfOctaves = (int)System.Math.Ceiling(System.Math.Log10(largestFeature) / System.Math.Log10(2));
 
             octaves = new Octave[numberOfOctaves];
             frequencys = new double[numberOfOctaves];
@@ -32,8 +32,8 @@ namespace Slartibartfast.Generators
             {
                 octaves[i] = new Octave(rnd.Next());
 
-                frequencys[i] = Math.Pow(2, i);
-                amplitudes[i] = Math.Pow(persistence, octaves.Length - i);
+                frequencys[i] = System.Math.Pow(2, i);
+                amplitudes[i] = System.Math.Pow(persistence, octaves.Length - i);
             }
 
         }
@@ -64,8 +64,8 @@ namespace Slartibartfast.Generators
 
             for (int i = 0; i < octaves.Length; i++)
             {
-                double frequency = Math.Pow(2, i);
-                double amplitude = Math.Pow(persistence, octaves.Length - i);
+                double frequency = System.Math.Pow(2, i);
+                double amplitude = System.Math.Pow(persistence, octaves.Length - i);
 
                 result += octaves[i].Noise(x / frequency, y / frequency, z / frequency) * amplitude;
             }
@@ -82,8 +82,8 @@ namespace Slartibartfast.Generators
 
             for (int i = 0; i < octaves.Length; i++)
             {
-                double frequency = Math.Pow(2, i);
-                double amplitude = Math.Pow(persistence, octaves.Length - i);
+                double frequency = System.Math.Pow(2, i);
+                double amplitude = System.Math.Pow(persistence, octaves.Length - i);
 
                 result += octaves[i].Noise(x / frequency, y / frequency, z / frequency, w / frequency) * amplitude;
             }
@@ -100,10 +100,10 @@ namespace Slartibartfast.Generators
             double dx = tileEndX - tileBeginX;
             double dy = tileEndY - tileBeginY;
 
-            double nx = tileBeginX + Math.Cos(s * 2 * Math.PI) * dx / (2 * Math.PI);
-            double ny = tileBeginY + Math.Cos(t * 2 * Math.PI) * dy / (2 * Math.PI);
-            double nz = tileBeginX + Math.Sin(s * 2 * Math.PI) * dx / (2 * Math.PI);
-            double nw = tileBeginY + Math.Sin(t * 2 * Math.PI) * dy / (2 * Math.PI);
+            double nx = tileBeginX + System.Math.Cos(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double ny = tileBeginY + System.Math.Cos(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
+            double nz = tileBeginX + System.Math.Sin(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double nw = tileBeginY + System.Math.Sin(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
 
             return GetNoise(nx, ny, nz, nw);
         }
@@ -120,10 +120,10 @@ namespace Slartibartfast.Generators
             double dx = tileEndX - tileBeginX;
             double dy = tileEndY - tileBeginY;
 
-            double nx = tileBeginX + Math.Cos(s * 2 * Math.PI) * dx / (2 * Math.PI);
-            double ny = tileBeginY + Math.Cos(t * 2 * Math.PI) * dy / (2 * Math.PI);
-            double nz = tileBeginX + Math.Sin(s * 2 * Math.PI) * dx / (2 * Math.PI);
-            double nw = tileBeginY + Math.Sin(t * 2 * Math.PI) * dy / (2 * Math.PI);
+            double nx = tileBeginX + System.Math.Cos(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double ny = tileBeginY + System.Math.Cos(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
+            double nz = tileBeginX + System.Math.Sin(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double nw = tileBeginY + System.Math.Sin(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
 
             return GetNoise(nx, ny, nz, nw);
         }
@@ -140,10 +140,10 @@ namespace Slartibartfast.Generators
             double dx = tileEndX - tileBeginX;
             double dy = tileEndY - tileBeginY;
 
-            double nx = tileBeginX + Math.Cos(s * 2 * Math.PI) * dx / (2 * Math.PI);
-            double ny = tileBeginY + Math.Cos(t * 2 * Math.PI) * dy / (2 * Math.PI);
-            double nz = tileBeginX + Math.Sin(s * 2 * Math.PI) * dx / (2 * Math.PI);
-            double nw = tileBeginY + Math.Sin(t * 2 * Math.PI) * dy / (2 * Math.PI);
+            double nx = tileBeginX + System.Math.Cos(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double ny = tileBeginY + System.Math.Cos(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
+            double nz = tileBeginX + System.Math.Sin(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double nw = tileBeginY + System.Math.Sin(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
 
             return GetNoise(nx, ny, nz, nw);
         }
@@ -155,10 +155,10 @@ namespace Slartibartfast.Generators
             double dx = tileEndX - tileBeginX;
             double dy = tileEndY - tileBeginY;
 
-            double nx = tileBeginX + Math.Cos(s * 2 * Math.PI) * dx / (2 * Math.PI);
-            double ny = tileBeginY + Math.Cos(t * 2 * Math.PI) * dy / (2 * Math.PI);
-            double nz = tileBeginX + Math.Sin(s * 2 * Math.PI) * dx / (2 * Math.PI);
-            double nw = tileBeginY + Math.Sin(t * 2 * Math.PI) * dy / (2 * Math.PI);
+            double nx = tileBeginX + System.Math.Cos(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double ny = tileBeginY + System.Math.Cos(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
+            double nz = tileBeginX + System.Math.Sin(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double nw = tileBeginY + System.Math.Sin(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
 
             float h = 0;
             for (int c = 1; c < frequency; c *= 2)
@@ -182,10 +182,10 @@ namespace Slartibartfast.Generators
             double dx = tileEndX - tileBeginX;
             double dy = tileEndY - tileBeginY;
 
-            double nx = tileBeginX + Math.Cos(s * 2 * Math.PI) * dx / (2 * Math.PI);
-            double ny = tileBeginY + Math.Cos(t * 2 * Math.PI) * dy / (2 * Math.PI);
-            double nz = tileBeginX + Math.Sin(s * 2 * Math.PI) * dx / (2 * Math.PI);
-            double nw = tileBeginY + Math.Sin(t * 2 * Math.PI) * dy / (2 * Math.PI);
+            double nx = tileBeginX + System.Math.Cos(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double ny = tileBeginY + System.Math.Cos(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
+            double nz = tileBeginX + System.Math.Sin(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double nw = tileBeginY + System.Math.Sin(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
 
             float h = 0;
             for (int c = 1; c < frequency; c *= 2)
@@ -209,10 +209,10 @@ namespace Slartibartfast.Generators
             double dx = tileEndX - tileBeginX;
             double dy = tileEndY - tileBeginY;
 
-            double nx = tileBeginX + Math.Cos(s * 2 * Math.PI) * dx / (2 * Math.PI);
-            double ny = tileBeginY + Math.Cos(t * 2 * Math.PI) * dy / (2 * Math.PI);
-            double nz = tileBeginX + Math.Sin(s * 2 * Math.PI) * dx / (2 * Math.PI);
-            double nw = tileBeginY + Math.Sin(t * 2 * Math.PI) * dy / (2 * Math.PI);
+            double nx = tileBeginX + System.Math.Cos(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double ny = tileBeginY + System.Math.Cos(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
+            double nz = tileBeginX + System.Math.Sin(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double nw = tileBeginY + System.Math.Sin(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
 
             float h = 0;
             for (int c = 1; c < frequency; c *= 2)

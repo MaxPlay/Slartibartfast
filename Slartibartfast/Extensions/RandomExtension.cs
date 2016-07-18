@@ -1,4 +1,4 @@
-﻿using Slartibartfast.Vectors;
+﻿using Slartibartfast.Math;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

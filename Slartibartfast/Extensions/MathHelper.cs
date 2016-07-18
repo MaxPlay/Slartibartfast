@@ -8,6 +8,8 @@ namespace Slartibartfast.Extensions
 {
     public static class MathHelper
     {
+        public static int? RandomSeed = null;
+
         public static float Lerp(float f0, float f1, float t)
         {
             return (1f - t) * f0 + t * f1;
@@ -34,32 +36,32 @@ namespace Slartibartfast.Extensions
 
         public static float Pow(float x, float y)
         {
-            return (float)Math.Pow(x, y);
+            return (float)System.Math.Pow(x, y);
         }
 
         public static int Floor(float a)
         {
-            return (int)Math.Floor(a);
+            return (int)System.Math.Floor(a);
         }
 
         public static int Ceiling(float a)
         {
-            return (int)Math.Ceiling(a);
+            return (int)System.Math.Ceiling(a);
         }
 
         public static float Min(float a, float b)
         {
-            return Math.Min(a, b);
+            return System.Math.Min(a, b);
         }
 
         public static float Max(float a, float b)
         {
-            return Math.Max(a, b);
+            return System.Math.Max(a, b);
         }
 
         public static float Abs(float a)
         {
-            return Math.Abs(a);
+            return System.Math.Abs(a);
         }
 
         public static float Clamp(float a, float b, float x)
@@ -110,17 +112,17 @@ namespace Slartibartfast.Extensions
 
         public static float Gamma(float a, float g)
         {
-            return (float)Math.Pow(a, 1 / g);
+            return (float)System.Math.Pow(a, 1 / g);
         }
 
         public static float Bias(float a, float b)
         {
-            return (float)Math.Pow(a, Math.Log(b) * LOGHALFI);
+            return (float)System.Math.Pow(a, System.Math.Log(b) * LOGHALFI);
         }
 
         public static float Expose(float l, float k)
         {
-            return (float)(1 - Math.Exp(-l * k));
+            return (float)(1 - System.Math.Exp(-l * k));
         }
 
         public static float Gain(float a, float b)
@@ -130,11 +132,11 @@ namespace Slartibartfast.Extensions
             if (a >= 1 - DELTA)
                 return 1;
 
-            float p = ((float)Math.Log(1 - b) * LOGHALFI);
+            float p = ((float)System.Math.Log(1 - b) * LOGHALFI);
             if (a < 0.5)
-                return (float)Math.Pow(2 * a, p) * 0.5f;
+                return (float)System.Math.Pow(2 * a, p) * 0.5f;
             else
-                return 1 - (float)Math.Pow(2 * (1 - a), p) * 0.5f;
+                return 1 - (float)System.Math.Pow(2 * (1 - a), p) * 0.5f;
         }
 
         public static float Smoothstep(float a, float b, float x)

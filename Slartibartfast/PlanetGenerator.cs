@@ -2,7 +2,7 @@
 using Slartibartfast.Generators;
 using Slartibartfast.Planets;
 using Slartibartfast.Textures;
-using Slartibartfast.Vectors;
+using Slartibartfast.Math;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -16,6 +16,7 @@ namespace Slartibartfast
     {
         public PlanetGenerator()
         {
+            MathHelper.RandomSeed = 1;
             /*Simplex simplexNoise = new Simplex(256, 0.1, 5000);
 
             int xResolution = 1024;
@@ -51,9 +52,13 @@ namespace Slartibartfast
             tex.SaveToFile("height.png");*/
 
             Planet planet = new Planet(PlanetSettings.Earth());
-            Color[,] plates = planet.GetDistances();
+            Color[,] plates = planet.GetTectonicPlates();
             Texture tex = new Texture(360, 180, ref plates);
             tex.SaveToFile("plates.png");
+
+            plates = planet.GetDistances();
+            tex = new Texture(360, 180, ref plates);
+            tex.SaveToFile("plates0.png");
         }
 
         public void Dispose()

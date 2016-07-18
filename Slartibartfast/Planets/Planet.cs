@@ -1,4 +1,5 @@
-﻿using Slartibartfast.Vectors;
+﻿using Slartibartfast.Extensions;
+using Slartibartfast.Math;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -109,8 +110,16 @@ namespace Slartibartfast.Planets
             surface = new SurfaceTexel[360, 180];
             GenerateTectonicPlates();
             GenerateBorders();
+            ExtendBorders();
         }
 
+        /// <summary>
+        /// Sets a spherical surface texel. This means that the range to get from is from -180 to 180 on the x-axis and -90 to 90 on the y-axis. 
+        /// Every value exceeding this limit will be wrapped around the sphere, as if you were moving around it. If you are exiting on top, you will enter on top, but with a y-shift of 180.
+        /// </summary>
+        /// <param name="CoordinateX">The x coordinate.</param>
+        /// <param name="CoordinateY">The y coordinate.</param>
+        /// <param name="texel">Surface Texel of the given location.</param>
         public void SetSurfaceTexel(int CoordinateX, int CoordinateY, SurfaceTexel texel)
         {
             CoordinateY += 90;
@@ -146,6 +155,13 @@ namespace Slartibartfast.Planets
             surface[x, y] = texel;
         }
 
+        /// <summary>
+        /// Gets a spherical surface texel. This means that the range to get from is from -180 to 180 on the x-axis and -90 to 90 on the y-axis. 
+        /// Every value exceeding this limit will be wrapped around the sphere, as if you were moving around it. If you are exiting on top, you will enter on top, but with a y-shift of 180.
+        /// </summary>
+        /// <param name="CoordinateX">The x coordinate.</param>
+        /// <param name="CoordinateY">The y coordinate.</param>
+        /// <returns>Surface Texel of the given location.</returns>
         public SurfaceTexel GetSurfaceTexel(int CoordinateX, int CoordinateY)
         {
             CoordinateY += 90;
@@ -181,6 +197,9 @@ namespace Slartibartfast.Planets
             return surface[x, y];
         }
 
+        /// <summary>
+        /// This method generates tectonic plates using a randomized flood fill algorithm.
+        /// </summary>
         public void GenerateTectonicPlates()
         {
             tectonicPlates = new List<TectonicPlate>();
@@ -202,7 +221,7 @@ namespace Slartibartfast.Planets
                 }
             }
 
-            Random rand = new Random();// DateTime.Now.Millisecond);
+            Random rand = new Random(MathHelper.RandomSeed != null ? (int)MathHelper.RandomSeed : 0);// DateTime.Now.Millisecond);
             for (int i = 0; i < tectonicPlatesCount; i++)
             {
                 tectonicPlates.Add(new TectonicPlate(i));
@@ -242,7 +261,7 @@ namespace Slartibartfast.Planets
                         int target = rand.Next(4);
 
                         texel.TectonicPlateID = possiblePlates[target].TectonicPlateID;
-                        texel.Distance = possiblePlates[target].Distance + 1;
+                        //texel.Distance = possiblePlates[target].Distance + 1;
 
                         SetSurfaceTexel(x, y, texel);
                         if (texel.TectonicPlateID != -1)
@@ -252,6 +271,9 @@ namespace Slartibartfast.Planets
             }
         }
 
+        /// <summary>
+        /// This method generates a planet with a single tectonic plate.
+        /// </summary>
         private void SinglePlatePlanet()
         {
             tectonicPlates.Add(new TectonicPlate(0));
@@ -265,7 +287,112 @@ namespace Slartibartfast.Planets
                 }
             }
         }
+        
+        /// <summary>
+        /// This method generates a border around the area where two plates meet. This line is always 2 units wide.
+        /// </summary>
+        public void GenerateBorders()
+        {
+            for (int y = -90; y < 90; y++)
+            {
+                for (int x = -180; x < 180; x++)
+                {
+                    SurfaceTexel texel = GetSurfaceTexel(x, y);
+                    int plateID = texel.TectonicPlateID;
 
+                    int[] plates = new int[4];
+
+                    plates[0] = GetSurfaceTexel(x - 1, y).TectonicPlateID;
+                    plates[1] = GetSurfaceTexel(x + 1, y).TectonicPlateID;
+                    plates[2] = GetSurfaceTexel(x, y - 1).TectonicPlateID;
+                    plates[3] = GetSurfaceTexel(x, y + 1).TectonicPlateID;
+
+                    texel.Distance = 0;
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (plates[i] != plateID)
+                        {
+                            texel.Distance = 1;
+                            break;
+                        }
+                    }
+                    SetSurfaceTexel(x, y, texel);
+                }
+            }
+        }
+
+        /// <summary>
+        /// This method extends the borders until either a certain limit is reached or the whole area is filled.
+        /// This is used as a falloff for the plates that work together. The nearer two plates are, the more they have impact on each other.
+        /// </summary>
+        /// <param name="limit">The limit of the extended border. This means that the extension never excedes over this value. The defaulvalue is 15.</param>
+        public void ExtendBorders(int limit = 15)
+        {
+            int emptyTiles = 180 * 360;
+            for (int y = -90; y < 90; y++)
+            {
+                for (int x = -180; x < 180; x++)
+                {
+                    SurfaceTexel texel = GetSurfaceTexel(x, y);
+                    if (texel.Distance > 0)
+                        emptyTiles--;
+                }
+            }
+
+            int targetheight = 1;
+            int limitheight = limit;
+            while (emptyTiles > 0)
+            {
+                Console.WriteLine(emptyTiles);
+
+                for (int y = -90; y < 90; y++)
+                {
+                    for (int x = -180; x < 180; x++)
+                    {
+                        SurfaceTexel texel = GetSurfaceTexel(x, y);
+                        int dist = texel.Distance;
+
+                        if (dist > 0)
+                            continue;
+
+                        int[] dists = new int[4];
+
+                        dists[0] = GetSurfaceTexel(x - 1, y).Distance;
+                        dists[1] = GetSurfaceTexel(x + 1, y).Distance;
+                        dists[2] = GetSurfaceTexel(x, y - 1).Distance;
+                        dists[3] = GetSurfaceTexel(x, y + 1).Distance;
+
+                        bool heightreached = false;
+                        for (int i = 0; i < 4; i++)
+                        {
+                            if (dists[i] == targetheight)
+                            {
+                                heightreached = true;
+                                break;
+                            }
+                        }
+
+                        if (heightreached)
+                        {
+                            if (targetheight == limitheight)
+                                texel.Distance = limitheight;
+                            else
+                                texel.Distance = targetheight + 1;
+                            emptyTiles--;
+                        }
+                        SetSurfaceTexel(x, y, texel);
+                    }
+                }
+                targetheight++;
+                if (targetheight > limitheight)
+                    targetheight = limitheight;
+            }
+        }
+
+        /// <summary>
+        /// Gets a generated Color-Representation of the tectonic plates.
+        /// </summary>
+        /// <returns>Two-dimensional array representing the tectonic plates.</returns>
         public Color[,] GetTectonicPlates()
         {
             Color[,] surf = new Color[360, 180];
@@ -280,6 +407,10 @@ namespace Slartibartfast.Planets
             return surf;
         }
 
+        /// <summary>
+        /// Gets a generated Color-Representation of the distances to the borders of tectonic plates (generated with the "GenerateBorders and ExtendBorders" methods).
+        /// </summary>
+        /// <returns>Two-dimensional array representing the distances to the borders of tectonic plates.</returns>
         public Color[,] GetDistances()
         {
             Color[,] surf = new Color[360, 180];
@@ -297,64 +428,12 @@ namespace Slartibartfast.Planets
             {
                 for (int x = 0; x < 360; x++)
                 {
-                    int col = 255-(int)((surface[x, y].Distance / max) * 255);
+                    int col = max == 0 ? 0 : (int)((surface[x, y].Distance / max) * 255);
                     surf[x, y] = Color.FromArgb(255, col, col, col);
                 }
             }
 
             return surf;
-        }
-
-        public void GenerateBorders()
-        {
-            int[,] distance = new int[360, 180];
-
-            for (int y = 0; y < 180; y++)
-            {
-                for (int x = 0; x < 360; x++)
-                {
-                    distance[x, y] = -1;
-                    y -= 90;
-                    x -= 180;
-                    SurfaceTexel texel = GetSurfaceTexel(x, y);
-                    int plateID = texel.TectonicPlateID;
-
-                    int[] plates = new int[4];
-
-                    plates[0] = GetSurfaceTexel(x - 1, y).TectonicPlateID;
-                    plates[1] = GetSurfaceTexel(x + 1, y).TectonicPlateID;
-                    plates[2] = GetSurfaceTexel(x, y - 1).TectonicPlateID;
-                    plates[3] = GetSurfaceTexel(x, y + 1).TectonicPlateID;
-
-                    for (int i = 0; i < 4; i++)
-                    {
-                        if (plates[i] != plateID)
-                        {
-                            distance[x + 180, y + 90] = 0;
-                            continue;
-                        }
-                    }
-                    y += 90;
-                    x += 180;
-                }
-            }
-
-            this.border = distance;
-        }
-
-        int[,] border;
-
-        public Color[,] GetBorder()
-        {
-            Color[,] c = new Color[360, 180];
-            for (int y = 0; y < 180; y++)
-            {
-                for (int x = 0; x < 360; x++)
-                {
-                    c[x, y] = border[x, y] == 0 ? Color.Black : Color.White;
-                }
-            }
-            return c;
         }
     }
 }

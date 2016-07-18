@@ -1,5 +1,5 @@
 ﻿using Slartibartfast.Extensions;
-using Slartibartfast.Vectors;
+using Slartibartfast.Math;
 using System;
 using System.Drawing;
 

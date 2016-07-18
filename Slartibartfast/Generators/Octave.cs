@@ -90,12 +90,12 @@ namespace Slartibartfast.Generators
         }
 
         // Skewing and unskewing factors for 2, 3, and 4 dimensions
-        private double F2 = 0.5 * (Math.Sqrt(3.0) - 1.0);
-        private double G2 = (3.0 - Math.Sqrt(3.0)) / 6.0;
+        private double F2 = 0.5 * (System.Math.Sqrt(3.0) - 1.0);
+        private double G2 = (3.0 - System.Math.Sqrt(3.0)) / 6.0;
         private double F3 = 1.0 / 3.0;
         private double G3 = 1.0 / 6.0;
-        private double F4 = (Math.Sqrt(5.0) - 1.0) / 4.0;
-        private double G4 = (5.0 - Math.Sqrt(5.0)) / 20.0;
+        private double F4 = (System.Math.Sqrt(5.0) - 1.0) / 4.0;
+        private double G4 = (5.0 - System.Math.Sqrt(5.0)) / 20.0;
 
         // This method is a *lot* faster than using (int)Math.floor(x)
         private static int fastfloor(double x)

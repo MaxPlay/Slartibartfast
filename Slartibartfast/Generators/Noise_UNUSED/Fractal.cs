@@ -82,7 +82,7 @@ namespace Slartibartfast.Generators.NoiseUNUSED
 
             octaves -= (int)octaves;
             if (octaves > MathHelper.DELTA)
-                value += octaves * Math.Abs(GenerateNoise(temp) * exponent[i]);
+                value += octaves * System.Math.Abs(GenerateNoise(temp) * exponent[i]);
             return MathHelper.Clamp(-0.99999f, 0.99999f, value);
         }
 
@@ -171,7 +171,7 @@ namespace Slartibartfast.Generators.NoiseUNUSED
 
         public float RidgedMultifractal(float[] vector, float octaves, float Offset, float gain)
         {
-            float signal = Offset - Math.Abs(GenerateNoise(vector));
+            float signal = Offset - System.Math.Abs(GenerateNoise(vector));
             signal *= signal;
             float value = signal;
             float[] temp = new float[MathHelper.MAX_DIMENSIONS];
@@ -188,7 +188,7 @@ namespace Slartibartfast.Generators.NoiseUNUSED
                     temp[j] *= lacunarity;
                 }
                 float weight = MathHelper.Clamp(0, 1, signal * gain);
-                signal = Offset - Math.Abs(GenerateNoise(temp));
+                signal = Offset - System.Math.Abs(GenerateNoise(temp));
                 signal *= signal;
                 signal *= weight;
                 value += signal * exponent[i];
@@ -221,8 +221,8 @@ namespace Slartibartfast.Generators.NoiseUNUSED
                 value += octaves * GenerateNoise(temp) * exponent[i];
 
             if (value <= 0.0f)
-                return (float)-Math.Pow(-value, 0.7f);
-            return (float)Math.Pow(value, 1 + GenerateNoise(temp) * value);
+                return (float)-System.Math.Pow(-value, 0.7f);
+            return (float)System.Math.Pow(value, 1 + GenerateNoise(temp) * value);
         }
     }
 }
