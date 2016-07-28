@@ -1,4 +1,5 @@
 ﻿using Slartibartfast.Extensions;
+using Slartibartfast.Generators;
 using Slartibartfast.Math;
 using System;
 using System.Collections.Generic;
@@ -111,6 +112,7 @@ namespace Slartibartfast.Planets
             GenerateTectonicPlates();
             GenerateBorders();
             ExtendBorders();
+            GenerateHeightValues();
         }
 
         /// <summary>
@@ -261,7 +263,6 @@ namespace Slartibartfast.Planets
                         int target = rand.Next(4);
 
                         texel.TectonicPlateID = possiblePlates[target].TectonicPlateID;
-                        //texel.Distance = possiblePlates[target].Distance + 1;
 
                         SetSurfaceTexel(x, y, texel);
                         if (texel.TectonicPlateID != -1)
@@ -287,9 +288,10 @@ namespace Slartibartfast.Planets
                 }
             }
         }
-        
+
         /// <summary>
         /// This method generates a border around the area where two plates meet. This line is always 2 units wide.
+        /// It also sets the adjacent plates.
         /// </summary>
         public void GenerateBorders()
         {
@@ -316,6 +318,24 @@ namespace Slartibartfast.Planets
                             break;
                         }
                     }
+
+                    List<Vector2> otherMoveDirections = new List<Vector2>();
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (plates[i] != plateID)
+                        {
+                            otherMoveDirections.Add(tectonicPlates[plates[i]].MoveDirection);
+                        }
+                    }
+
+                    Vector2 adjacentMoveDirection = Vector2.Zero;
+                    for (int i = 0; i < otherMoveDirections.Count; i++)
+                    {
+                        adjacentMoveDirection += otherMoveDirections[i] / (float)otherMoveDirections.Count;
+                    }
+
+                    texel.AdjacentDirection = adjacentMoveDirection;
+
                     SetSurfaceTexel(x, y, texel);
                 }
             }
@@ -355,30 +375,37 @@ namespace Slartibartfast.Planets
                         if (dist > 0)
                             continue;
 
-                        int[] dists = new int[4];
+                        SurfaceTexel[] dists = new SurfaceTexel[4];
 
-                        dists[0] = GetSurfaceTexel(x - 1, y).Distance;
-                        dists[1] = GetSurfaceTexel(x + 1, y).Distance;
-                        dists[2] = GetSurfaceTexel(x, y - 1).Distance;
-                        dists[3] = GetSurfaceTexel(x, y + 1).Distance;
+                        dists[0] = GetSurfaceTexel(x - 1, y);
+                        dists[1] = GetSurfaceTexel(x + 1, y);
+                        dists[2] = GetSurfaceTexel(x, y - 1);
+                        dists[3] = GetSurfaceTexel(x, y + 1);
 
-                        bool heightreached = false;
+                        List<Vector2> heightreached = new List<Vector2>();
                         for (int i = 0; i < 4; i++)
                         {
-                            if (dists[i] == targetheight)
+                            if (dists[i].Distance == targetheight)
                             {
-                                heightreached = true;
-                                break;
+                                heightreached.Add(dists[i].AdjacentDirection);
                             }
                         }
 
-                        if (heightreached)
+                        if (heightreached.Count > 0)
                         {
                             if (targetheight == limitheight)
                                 texel.Distance = limitheight;
                             else
                                 texel.Distance = targetheight + 1;
                             emptyTiles--;
+
+                            Vector2 adjacentMoveDirection = Vector2.Zero;
+                            for (int i = 0; i < heightreached.Count; i++)
+                            {
+                                adjacentMoveDirection += heightreached[i] / (float)heightreached.Count;
+                            }
+
+                            texel.AdjacentDirection = adjacentMoveDirection * (1f - targetheight / (float)limitheight);
                         }
                         SetSurfaceTexel(x, y, texel);
                     }
@@ -386,6 +413,49 @@ namespace Slartibartfast.Planets
                 targetheight++;
                 if (targetheight > limitheight)
                     targetheight = limitheight;
+            }
+        }
+
+        /// <summary>
+        /// Generates a terrain by using simplex noise. This is merely the basis for every further calculations and shall be used as a noisey nonlinear terrain.
+        /// It mirrors a tileable simplex-noise fbm tile to create seemless spherical maps. I didn't do any research wether this is necessary at all, since all the pixels at the top will be mashed together on a sphere.
+        /// The next step will be a linear interpolation on both ends of the images to unify this point to a median value.
+        /// </summary>
+        public void GenerateHeightValues()
+        {
+            Simplex simplexNoise = new Simplex(256, 0.1, 5000);
+
+            int xResolution = 180;
+            int yResolution = 180;
+
+            int frequency = 128;
+
+            float[,] height = new float[xResolution, yResolution];
+
+            int steps = 0;
+            double maxsteps = xResolution * yResolution;
+            int percent = 0;
+
+            for (int x = 0; x < xResolution; x++)
+            {
+                for (int y = 0; y < yResolution; y++)
+                {
+                    if (percent < (steps / maxsteps) * 100)
+                    {
+                        percent++;
+                        Console.Clear();
+                        Console.WriteLine("Generating Tileable FBM Simplex Noise.");
+                        Console.WriteLine("{0}%", percent);
+                    }
+                    steps++;
+                    SurfaceTexel texel = GetSurfaceTexel(x, y);
+                    texel.Height = (float)simplexNoise.GetTileableFBM(x, y, 0, 256, 0, 256, xResolution, yResolution, frequency);
+                    SetSurfaceTexel(x, y, texel);
+
+                    SurfaceTexel mirrortexel = GetSurfaceTexel(359 - x, y);
+                    mirrortexel.Height = (float)simplexNoise.GetTileableFBM(x, y, 0, 256, 0, 256, xResolution, yResolution, frequency);
+                    SetSurfaceTexel(359 - x, y, mirrortexel);
+                }
             }
         }
 
@@ -430,6 +500,45 @@ namespace Slartibartfast.Planets
                 {
                     int col = max == 0 ? 0 : (int)((surface[x, y].Distance / max) * 255);
                     surf[x, y] = Color.FromArgb(255, col, col, col);
+                }
+            }
+
+            return surf;
+        }
+
+        /// <summary>
+        /// Gets the heightmap as a two-dimensional array of floats.
+        /// </summary>
+        /// <returns></returns>
+        public float[,] GetHeight()
+        {
+            float[,] surf = new float[360, 180];
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    surf[x, y] = GetSurfaceTexel(x, y).Height;
+                }
+            }
+
+            return surf;
+        }
+
+        /// <summary>
+        /// Gets the adjacent move directions (other plates adjacent to the current plate) as RGB values.
+        /// </summary>
+        /// <returns></returns>
+        public Color[,] GetAdjacentMoveDirection()
+        {
+            Color[,] surf = new Color[360, 180];
+
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    int r = (int)((surface[x, y].AdjacentDirection.X * 128f) + 128);
+                    int g = (int)((surface[x, y].AdjacentDirection.Y * 128f) + 128);
+                    surf[x, y] = Color.FromArgb(255, r, g, 255);
                 }
             }
 
