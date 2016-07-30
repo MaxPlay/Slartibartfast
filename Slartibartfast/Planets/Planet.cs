@@ -113,6 +113,8 @@ namespace Slartibartfast.Planets
             GenerateBorders();
             ExtendBorders();
             GenerateHeightValues();
+            ApplyPlateTectonics();
+            
         }
 
         /// <summary>
@@ -346,7 +348,7 @@ namespace Slartibartfast.Planets
         /// This is used as a falloff for the plates that work together. The nearer two plates are, the more they have impact on each other.
         /// </summary>
         /// <param name="limit">The limit of the extended border. This means that the extension never excedes over this value. The defaulvalue is 15.</param>
-        public void ExtendBorders(int limit = 15)
+        public void ExtendBorders(int limit = 25)
         {
             int emptyTiles = 180 * 360;
             for (int y = -90; y < 90; y++)
@@ -418,7 +420,6 @@ namespace Slartibartfast.Planets
 
         /// <summary>
         /// Generates a terrain by using simplex noise. This is merely the basis for every further calculations and shall be used as a noisey nonlinear terrain.
-        /// It mirrors a tileable simplex-noise fbm tile to create seemless spherical maps. I didn't do any research wether this is necessary at all, since all the pixels at the top will be mashed together on a sphere.
         /// The next step will be a linear interpolation on both ends of the images to unify this point to a median value.
         /// </summary>
         public void GenerateHeightValues()
@@ -448,13 +449,53 @@ namespace Slartibartfast.Planets
                         Console.WriteLine("{0}%", percent);
                     }
                     steps++;
-                    SurfaceTexel texel = GetSurfaceTexel(x, y);
-                    texel.Height = (float)simplexNoise.GetTileableFBM(x, y, 0, 256, 0, 256, xResolution, yResolution, frequency);
-                    SetSurfaceTexel(x, y, texel);
+                    float h = (float)simplexNoise.GetTileableFBM(x, y, 0, 256, 0, 256, xResolution, yResolution, frequency);
+                    if (y < 90)
+                        h = (y / 90f) * h + 1 - (y / 90f);
 
-                    SurfaceTexel mirrortexel = GetSurfaceTexel(359 - x, y);
-                    mirrortexel.Height = (float)simplexNoise.GetTileableFBM(x, y, 0, 256, 0, 256, xResolution, yResolution, frequency);
-                    SetSurfaceTexel(359 - x, y, mirrortexel);
+                    if (y > 90)
+                        h = ((180 - y) / 90f) * h + 1 - ((180 - y) / 90f);
+
+                    SurfaceTexel texel = GetSurfaceTexel(x - 180, y - 90);
+                    SurfaceTexel texel1 = GetSurfaceTexel(x, y - 90);
+                    texel.Height = h;
+                    texel1.Height = h;
+                    SetSurfaceTexel(x - 180, y - 90, texel);
+                    SetSurfaceTexel(x, y - 90, texel1);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Raises and lowers the terrain according to the plates
+        /// </summary>
+        /// <param name="limit"></param>
+        public void ApplyPlateTectonics(int limit = 25)
+        {
+            for (int y = -90; y < 90; y++)
+            {
+                for (int x = -180; x < 180; x++)
+                {
+                    SurfaceTexel texel = GetSurfaceTexel(x, y);
+                    Vector2 ownDirection = tectonicPlates[texel.TectonicPlateID].MoveDirection;
+                    Vector2 adjacentDirection = texel.AdjacentDirection;
+                    // if (adjacentDirection.Length() == 0)
+                    //continue;
+                    
+                    Vector2 cumulatedDirection = ownDirection + adjacentDirection;
+                    float multiplier = cumulatedDirection.Length();
+
+                    if (y < 0)
+                        multiplier = ((y+90) / 90f) * multiplier + 1 - ((y + 90) / 90f);
+
+                    if (y > 0)
+                        multiplier = ((180 - (y + 90)) / 90f) * multiplier + 1 - ((180 - (y + 90)) / 90f);
+
+                    multiplier--;
+                    multiplier *= 0.05f;
+                    multiplier++;
+                    texel.Height *= multiplier;
+                    SetSurfaceTexel(x, y, texel);
                 }
             }
         }
@@ -517,7 +558,7 @@ namespace Slartibartfast.Planets
             {
                 for (int x = 0; x < 360; x++)
                 {
-                    surf[x, y] = GetSurfaceTexel(x, y).Height;
+                    surf[x, y] = surface[x, y].Height;
                 }
             }
 
