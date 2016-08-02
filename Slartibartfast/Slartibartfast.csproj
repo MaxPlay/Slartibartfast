@@ -53,6 +53,7 @@
     <Compile Include="Generators\Noise_UNUSED\Noise.cs" />
     <Compile Include="Generators\Simplex.cs" />
     <Compile Include="Generators\Octave.cs" />
+    <Compile Include="Math\MinMax.cs" />
     <Compile Include="PlanetGenerator.cs" />
     <Compile Include="Planets\Atmosphere.cs" />
     <Compile Include="Planets\Planet.cs" />
