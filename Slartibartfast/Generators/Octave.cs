@@ -15,6 +15,7 @@
  *
  */
 
+using Slartibartfast.Extensions;
 using System;
 
 namespace Slartibartfast.Generators
@@ -83,12 +84,12 @@ namespace Slartibartfast.Generators
 
             if (seed == RANDOMSEED)
             {
-                Random r = new Random();
+                Random r = new Random(MathHelper.RandomSeed != null ? (int)MathHelper.RandomSeed : 0);
                 seed = r.Next();
             }
 
             //the random for the swaps
-            Random rand = new Random(seed);
+            Random rand = new Random(MathHelper.RandomSeed != null ? (int)MathHelper.RandomSeed : 0);
 
             //the seed determines the swaps that occur between the default order and the order we're actually going to use
             for (int i = 0; i < NUMBEROFSWAPS; i++)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Slartibartfast.Extensions;
+using System;
 
 namespace Slartibartfast.Generators
 {
@@ -11,17 +12,15 @@ namespace Slartibartfast.Generators
         private int largestFeature;
         private Octave[] octaves;
         private double persistence;
-        private int seed;
 
         #endregion Private Fields
 
         #region Public Constructors
 
-        public Simplex(int largestFeature, double persistence, int seed)
+        public Simplex(int largestFeature, double persistence)
         {
             this.largestFeature = largestFeature;
             this.persistence = persistence;
-            this.seed = seed;
 
             //recieves a number (eg 128) and calculates what power of 2 it is (eg 2^7)
             int numberOfOctaves = (int)System.Math.Ceiling(System.Math.Log10(largestFeature) / System.Math.Log10(2));
@@ -30,7 +29,7 @@ namespace Slartibartfast.Generators
             frequencys = new double[numberOfOctaves];
             amplitudes = new double[numberOfOctaves];
 
-            Random rnd = new Random(seed);
+            Random rnd = new Random(MathHelper.RandomSeed != null ? (int)MathHelper.RandomSeed : 0);
 
             for (int i = 0; i < numberOfOctaves; i++)
             {

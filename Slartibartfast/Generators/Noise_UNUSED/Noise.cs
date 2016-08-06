@@ -90,7 +90,7 @@ namespace Slartibartfast.Generators.NoiseUNUSED
         public void Init(int dimensions, int seed)
         {
             this.dimensions = System.Math.Min(dimensions, MathHelper.MAX_DIMENSIONS);
-            Random r = new Random(seed);
+            Random r = new Random(MathHelper.RandomSeed != null ? (int)MathHelper.RandomSeed : 0);
             int i, j;
             for (i = 0; i < 256; i++)
             {

@@ -1,4 +1,5 @@
 ﻿using Slartibartfast;
+using Slartibartfast.Planets;
 
 namespace SlartibartfastTest
 {
@@ -10,6 +11,10 @@ namespace SlartibartfastTest
         {
             using (PlanetGenerator generator = new PlanetGenerator())
             {
+                PlanetSettings settings = PlanetSettings.Earth();
+
+                generator.PlanetSettings = settings;
+
                 generator.Run();
             }
         }

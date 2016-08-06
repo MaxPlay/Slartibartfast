@@ -1,4 +1,5 @@
 ﻿using Slartibartfast.Extensions;
+using Slartibartfast.Math;
 using Slartibartfast.Planets;
 using Slartibartfast.Textures;
 using System;
@@ -12,7 +13,13 @@ namespace Slartibartfast
 
         private PlanetSettings planetSettings;
         private Sun sun;
+        private TextureType outputTextures;
 
+        public TextureType OutputTextures
+        {
+            get { return outputTextures; }
+        }
+        
         #endregion Private Fields
 
         #region Public Constructors
@@ -68,6 +75,12 @@ namespace Slartibartfast
         {
             if (sun == null)
                 sun = Sun.GetSol();
+
+            Planet planet = new Planet(planetSettings);
+            MinMax<float> habitableZone = sun.GetHabitableZone();
+            float habitableZoneLocation = (planet.DistanceToSun - habitableZone.Min) / (habitableZone.Max - habitableZone.Min);
+            planet.GenerateVegetation();
+            planet.GenerateTextures(outputTextures);
         }
 
         #endregion Public Methods

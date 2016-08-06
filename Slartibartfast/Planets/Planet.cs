@@ -4,6 +4,7 @@ using Slartibartfast.Math;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Slartibartfast.Textures;
 
 namespace Slartibartfast.Planets
 {
@@ -79,6 +80,16 @@ namespace Slartibartfast.Planets
             ExtendBorders();
             GenerateHeightValues();
             ApplyPlateTectonics();
+        }
+
+        internal void GenerateTextures(TextureType outputTextures)
+        {
+
+        }
+
+        internal void GenerateVegetation()
+        {
+
         }
 
         #endregion Public Constructors
@@ -308,7 +319,7 @@ namespace Slartibartfast.Planets
         /// </summary>
         public void GenerateHeightValues()
         {
-            Simplex simplexNoise = new Simplex(256, 0.1, 5000);
+            Simplex simplexNoise = new Simplex(256, 0.1);
 
             int xResolution = 180;
             int yResolution = 180;

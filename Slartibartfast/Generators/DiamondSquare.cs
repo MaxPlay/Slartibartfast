@@ -15,7 +15,7 @@ namespace Slartibartfast.Generators
 
         public DiamondSquare()
         {
-            random = new Random();
+            random = new Random(MathHelper.RandomSeed != null ? (int)MathHelper.RandomSeed : 0);
         }
 
         #endregion Public Constructors
@@ -31,15 +31,13 @@ namespace Slartibartfast.Generators
         /// <param name="size">        
         /// The size of the resulting array. Needs to be a Power of 2.
         /// </param>
-        /// <param name="seed">        The random seed.</param>
         /// <param name="minElevation">The min elevation of the terrain.</param>
         /// <param name="maxElevation">The max elevation of the terrain.</param>
         /// <param name="noise">       The noise applied to the result.</param>
         /// <returns></returns>
-        public float[,] Generate(int size, int seed = 0, float minElevation = 0, float maxElevation = 255, float noise = 0.0f)
+        public float[,] Generate(int size, float minElevation = 0, float maxElevation = 255, float noise = 0.0f)
         {
-            if (seed != 0)
-                random = new Random(seed);
+            random = new Random(MathHelper.RandomSeed != null ? (int)MathHelper.RandomSeed : 0);
 
             // Fail if grid size is not of the form (2 ^ n) - 1 or if min/max values are invalid
             size++;

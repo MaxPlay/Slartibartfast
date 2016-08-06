@@ -20,7 +20,7 @@ namespace Slartibartfast.Planets
 
         public TectonicPlate(int id)
         {
-            Random rand = new Random(DateTime.Now.Millisecond * id);
+            Random rand = new Random(MathHelper.RandomSeed != null ? (int)MathHelper.RandomSeed : 0);
             moveDirection = rand.Vector2();
             debugColor = rand.Color();
         }

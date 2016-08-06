@@ -5,12 +5,7 @@ using System.IO;
 
 namespace Slartibartfast.Textures
 {
-    public enum TextureType
-    {
-        color,
-        height,
-        gloss
-    }
+    
 
     internal class Texture
     {
