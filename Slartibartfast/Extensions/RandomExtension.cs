@@ -1,15 +1,18 @@
 ﻿using Slartibartfast.Math;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Slartibartfast.Extensions
 {
     public static class RandomExtension
     {
+        #region Public Methods
+
+        public static Color Color(this Random r)
+        {
+            return System.Drawing.Color.FromArgb(255, r.Next(0, 256), r.Next(0, 256), r.Next(0, 256));
+        }
+
         public static int Range(this Random r, int rMin, int rMax)
         {
             return rMin + r.Next() * (rMax - rMin);
@@ -35,9 +38,6 @@ namespace Slartibartfast.Extensions
             return new Vector3((float)r.NextDouble() * 2 - 1, (float)r.NextDouble() * 2 - 1, (float)r.NextDouble() * 2 - 1);
         }
 
-        public static Color Color(this Random r)
-        {
-            return System.Drawing.Color.FromArgb(255, r.Next(0, 256), r.Next(0, 256), r.Next(0, 256));
-        }
+        #endregion Public Methods
     }
 }

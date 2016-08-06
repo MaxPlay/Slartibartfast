@@ -4,14 +4,18 @@ namespace Slartibartfast.Generators
 {
     public class Simplex
     {
+        #region Private Fields
 
-        Octave[] octaves;
-        double[] frequencys;
-        double[] amplitudes;
+        private double[] amplitudes;
+        private double[] frequencys;
+        private int largestFeature;
+        private Octave[] octaves;
+        private double persistence;
+        private int seed;
 
-        int largestFeature;
-        double persistence;
-        int seed;
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public Simplex(int largestFeature, double persistence, int seed)
         {
@@ -35,13 +39,14 @@ namespace Slartibartfast.Generators
                 frequencys[i] = System.Math.Pow(2, i);
                 amplitudes[i] = System.Math.Pow(persistence, octaves.Length - i);
             }
-
         }
 
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public double GetNoise(int x, int y)
         {
-
             double result = 0;
 
             for (int i = 0; i < octaves.Length; i++)
@@ -52,14 +57,11 @@ namespace Slartibartfast.Generators
                 result += octaves[i].Noise(x / frequencys[i], y / frequencys[i]) * amplitudes[i];
             }
 
-
             return result;
-
         }
 
         public double GetNoise(int x, int y, int z)
         {
-
             double result = 0;
 
             for (int i = 0; i < octaves.Length; i++)
@@ -70,14 +72,11 @@ namespace Slartibartfast.Generators
                 result += octaves[i].Noise(x / frequency, y / frequency, z / frequency) * amplitude;
             }
 
-
             return result;
-
         }
 
         public double GetNoise(double x, double y, double z, double w)
         {
-
             double result = 0;
 
             for (int i = 0; i < octaves.Length; i++)
@@ -88,64 +87,7 @@ namespace Slartibartfast.Generators
                 result += octaves[i].Noise(x / frequency, y / frequency, z / frequency, w / frequency) * amplitude;
             }
 
-
             return result;
-
-        }
-
-        public double GetTileableNoise(int x, int y, double tileBeginX, double tileEndX, double tileBeginY, double tileEndY, double width, double height, double frequency)
-        {
-            double s = x / width;
-            double t = y / height;
-            double dx = tileEndX - tileBeginX;
-            double dy = tileEndY - tileBeginY;
-
-            double nx = tileBeginX + System.Math.Cos(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
-            double ny = tileBeginY + System.Math.Cos(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
-            double nz = tileBeginX + System.Math.Sin(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
-            double nw = tileBeginY + System.Math.Sin(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
-
-            return GetNoise(nx, ny, nz, nw);
-        }
-
-        public double GetTileableNoise(int x, int y, double width, double height, double frequency, double zoom)
-        {
-            double tileBeginX = 0;
-            double tileEndX = width * zoom;
-            double tileBeginY = 0;
-            double tileEndY = height * zoom;
-
-            double s = x / width;
-            double t = y / height;
-            double dx = tileEndX - tileBeginX;
-            double dy = tileEndY - tileBeginY;
-
-            double nx = tileBeginX + System.Math.Cos(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
-            double ny = tileBeginY + System.Math.Cos(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
-            double nz = tileBeginX + System.Math.Sin(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
-            double nw = tileBeginY + System.Math.Sin(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
-
-            return GetNoise(nx, ny, nz, nw);
-        }
-
-        public double GetTileableNoise(int x, int y, double width, double height, double frequency)
-        {
-            double tileBeginX = 0;
-            double tileEndX = width;
-            double tileBeginY = 0;
-            double tileEndY = height;
-
-            double s = x / width;
-            double t = y / height;
-            double dx = tileEndX - tileBeginX;
-            double dy = tileEndY - tileBeginY;
-
-            double nx = tileBeginX + System.Math.Cos(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
-            double ny = tileBeginY + System.Math.Cos(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
-            double nz = tileBeginX + System.Math.Sin(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
-            double nw = tileBeginY + System.Math.Sin(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
-
-            return GetNoise(nx, ny, nz, nw);
         }
 
         public double GetTileableFBM(int x, int y, double tileBeginX, double tileEndX, double tileBeginY, double tileEndY, double width, double height, double frequency)
@@ -223,5 +165,62 @@ namespace Slartibartfast.Generators
 
             return h;
         }
+
+        public double GetTileableNoise(int x, int y, double tileBeginX, double tileEndX, double tileBeginY, double tileEndY, double width, double height, double frequency)
+        {
+            double s = x / width;
+            double t = y / height;
+            double dx = tileEndX - tileBeginX;
+            double dy = tileEndY - tileBeginY;
+
+            double nx = tileBeginX + System.Math.Cos(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double ny = tileBeginY + System.Math.Cos(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
+            double nz = tileBeginX + System.Math.Sin(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double nw = tileBeginY + System.Math.Sin(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
+
+            return GetNoise(nx, ny, nz, nw);
+        }
+
+        public double GetTileableNoise(int x, int y, double width, double height, double frequency, double zoom)
+        {
+            double tileBeginX = 0;
+            double tileEndX = width * zoom;
+            double tileBeginY = 0;
+            double tileEndY = height * zoom;
+
+            double s = x / width;
+            double t = y / height;
+            double dx = tileEndX - tileBeginX;
+            double dy = tileEndY - tileBeginY;
+
+            double nx = tileBeginX + System.Math.Cos(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double ny = tileBeginY + System.Math.Cos(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
+            double nz = tileBeginX + System.Math.Sin(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double nw = tileBeginY + System.Math.Sin(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
+
+            return GetNoise(nx, ny, nz, nw);
+        }
+
+        public double GetTileableNoise(int x, int y, double width, double height, double frequency)
+        {
+            double tileBeginX = 0;
+            double tileEndX = width;
+            double tileBeginY = 0;
+            double tileEndY = height;
+
+            double s = x / width;
+            double t = y / height;
+            double dx = tileEndX - tileBeginX;
+            double dy = tileEndY - tileBeginY;
+
+            double nx = tileBeginX + System.Math.Cos(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double ny = tileBeginY + System.Math.Cos(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
+            double nz = tileBeginX + System.Math.Sin(s * 2 * System.Math.PI) * dx / (2 * System.Math.PI);
+            double nw = tileBeginY + System.Math.Sin(t * 2 * System.Math.PI) * dy / (2 * System.Math.PI);
+
+            return GetNoise(nx, ny, nz, nw);
+        }
+
+        #endregion Public Methods
     }
 }

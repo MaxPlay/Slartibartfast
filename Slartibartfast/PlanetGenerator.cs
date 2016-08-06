@@ -1,23 +1,26 @@
 ﻿using Slartibartfast.Extensions;
-using Slartibartfast.Generators;
 using Slartibartfast.Planets;
 using Slartibartfast.Textures;
-using Slartibartfast.Math;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Slartibartfast
 {
     public class PlanetGenerator : IDisposable
     {
+        #region Private Fields
+
+        private PlanetSettings planetSettings;
+        private Sun sun;
+
+        #endregion Private Fields
+
+        #region Public Constructors
+
         public PlanetGenerator()
         {
             MathHelper.RandomSeed = 1;
-            
+
             Planet planet = new Planet(PlanetSettings.Earth());
             Color[,] plates = planet.GetTectonicPlates();
             Texture tex = new Texture(360, 180, ref plates);
@@ -36,14 +39,37 @@ namespace Slartibartfast
             tex.SaveToFile("adjacent.png");
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        public PlanetSettings PlanetSettings
+        {
+            get { return planetSettings; }
+            set { planetSettings = value; }
+        }
+
+        public Sun Sun
+        {
+            get { return sun; }
+            set { sun = value; }
+        }
+
+        #endregion Public Properties
+
+        #region Public Methods
+
         public void Dispose()
         {
-
+            sun = null;
         }
 
         public void Run()
         {
-
+            if (sun == null)
+                sun = Sun.GetSol();
         }
+
+        #endregion Public Methods
     }
 }

@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Slartibartfast.Extensions
+﻿namespace Slartibartfast.Extensions
 {
     public static class SingleExtension
     {
+        #region Public Methods
+
         public static float[] ToVectorArray(this float f)
         {
             return new float[] { f };
         }
+
+        #endregion Public Methods
     }
 }

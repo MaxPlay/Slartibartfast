@@ -1,28 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Slartibartfast.Math
+﻿namespace Slartibartfast.Math
 {
     public class MinMax<T>
     {
-        private T min;
-
-        public T Min
-        {
-            get { return min; }
-            set { min = value; }
-        }
+        #region Private Fields
 
         private T max;
+        private T min;
 
-        public T Max
-        {
-            get { return max; }
-            set { max = value; }
-        }
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public MinMax(T max)
         {
@@ -34,5 +21,23 @@ namespace Slartibartfast.Math
             this.min = min;
             this.max = max;
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        public T Max
+        {
+            get { return max; }
+            set { max = value; }
+        }
+
+        public T Min
+        {
+            get { return min; }
+            set { min = value; }
+        }
+
+        #endregion Public Properties
     }
 }

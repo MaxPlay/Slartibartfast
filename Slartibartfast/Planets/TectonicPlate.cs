@@ -7,15 +7,27 @@ namespace Slartibartfast.Planets
 {
     internal class TectonicPlate
     {
-        private int id;
-
-        public int ID
-        {
-            get { return id; }
-            set { id = value; }
-        }
+        #region Private Fields
 
         private Color debugColor;
+        private int id;
+
+        private Vector2 moveDirection;
+
+        #endregion Private Fields
+
+        #region Public Constructors
+
+        public TectonicPlate(int id)
+        {
+            Random rand = new Random(DateTime.Now.Millisecond * id);
+            moveDirection = rand.Vector2();
+            debugColor = rand.Color();
+        }
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         public Color DebugColor
         {
@@ -23,7 +35,11 @@ namespace Slartibartfast.Planets
             set { debugColor = value; }
         }
 
-        private Vector2 moveDirection;
+        public int ID
+        {
+            get { return id; }
+            set { id = value; }
+        }
 
         public Vector2 MoveDirection
         {
@@ -31,11 +47,6 @@ namespace Slartibartfast.Planets
             set { moveDirection = value; }
         }
 
-        public TectonicPlate(int id)
-        {
-            Random rand = new Random(DateTime.Now.Millisecond*id);
-            moveDirection = rand.Vector2();
-            debugColor = rand.Color();
-        }
+        #endregion Public Properties
     }
 }

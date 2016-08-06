@@ -1,20 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Slartibartfast;
+﻿using Slartibartfast;
 
 namespace SlartibartfastTest
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        #region Private Methods
+
+        private static void Main(string[] args)
         {
             using (PlanetGenerator generator = new PlanetGenerator())
             {
                 generator.Run();
             }
         }
+
+        #endregion Private Methods
     }
 }

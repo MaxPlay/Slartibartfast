@@ -1,17 +1,19 @@
 ﻿using Slartibartfast.Extensions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Slartibartfast.Generators.NoiseUNUSED
 {
     public class Noise
     {
+        #region Protected Fields
+
+        protected float[][] buffer;
         protected int dimensions;
         protected int[] map;
-        protected float[][] buffer;
+
+        #endregion Protected Fields
+
+        #region Public Constructors
 
         public Noise()
         {
@@ -23,27 +25,14 @@ namespace Slartibartfast.Generators.NoiseUNUSED
             }
         }
 
-        protected float Lattice(int ix, float fx, int iy = 0, float fy = 0, int iz = 0, float fz = 0, int iw = 0, float fw = 0)
-        {
-            int[] n = new int[] { ix, iy, iz, iw };
-            float[] f = new float[] { fx, fy, fz, fw };
-            int index = 0;
-            for (int i = 0; i < dimensions; i++)
-            {
-                index = map[(index + n[i]) & 0xFF];
-            }
-            float value = 0;
-            for (int i = 0; i < dimensions; i++)
-            {
-                value += buffer[index][i] * f[i];
-            }
-            return value;
-        }
-
         public Noise(int dimensions, int seed) : this()
         {
             Init(dimensions, seed);
         }
+
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public float GenerateNoise(float[] vector)
         {
@@ -65,6 +54,7 @@ namespace Slartibartfast.Generators.NoiseUNUSED
                                   Lattice(n[0] + 1, r[0] - 1),
                                   w[0]);
                     break;
+
                 case 2:
                     value = MathHelper.Lerp(MathHelper.Lerp(Lattice(n[0], r[0], n[1], r[1]),
                                        Lattice(n[0] + 1, r[0] - 1, n[1], r[1]),
@@ -74,6 +64,7 @@ namespace Slartibartfast.Generators.NoiseUNUSED
                                        w[0]),
                                   w[1]);
                     break;
+
                 case 3:
                     value = MathHelper.Lerp(MathHelper.Lerp(MathHelper.Lerp(Lattice(n[0], r[0], n[1], r[1], n[2], r[2]),
                                             Lattice(n[0] + 1, r[0] - 1, n[1], r[1], n[2], r[2]),
@@ -118,5 +109,28 @@ namespace Slartibartfast.Generators.NoiseUNUSED
                 MathHelper.Swap(ref map, i, j);
             }
         }
+
+        #endregion Public Methods
+
+        #region Protected Methods
+
+        protected float Lattice(int ix, float fx, int iy = 0, float fy = 0, int iz = 0, float fz = 0, int iw = 0, float fw = 0)
+        {
+            int[] n = new int[] { ix, iy, iz, iw };
+            float[] f = new float[] { fx, fy, fz, fw };
+            int index = 0;
+            for (int i = 0; i < dimensions; i++)
+            {
+                index = map[(index + n[i]) & 0xFF];
+            }
+            float value = 0;
+            for (int i = 0; i < dimensions; i++)
+            {
+                value += buffer[index][i] * f[i];
+            }
+            return value;
+        }
+
+        #endregion Protected Methods
     }
 }

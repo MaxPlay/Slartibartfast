@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Slartibartfast.Extensions;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Slartibartfast.Extensions;
-using System.IO;
 using System.Drawing.Imaging;
+using System.IO;
 
 namespace Slartibartfast.Textures
 {
@@ -19,15 +14,16 @@ namespace Slartibartfast.Textures
 
     internal class Texture
     {
-        int width;
-        int height;
-        Color[] color;
-        TextureType textureType;
+        #region Private Fields
 
-        public int Width { get { return width; } }
-        public int Height { get { return height; } }
-        public Color[] Color { get { return color; } }
-        public TextureType Type { get { return textureType; } set { textureType = value; } }
+        private Color[] color;
+        private int height;
+        private TextureType textureType;
+        private int width;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public Texture(int width, int height, ref Color[,] array)
         {
@@ -68,6 +64,43 @@ namespace Slartibartfast.Textures
             color = new Color[width * height];
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        public Color[] Color { get { return color; } }
+        public int Height { get { return height; } }
+        public TextureType Type { get { return textureType; } set { textureType = value; } }
+        public int Width { get { return width; } }
+
+        #endregion Public Properties
+
+        #region Public Methods
+
+        public void SaveToFile(string filename, bool overwrite = true)
+        {
+            if (File.Exists(filename))
+                if (!overwrite)
+                    return;
+
+            ToBitmap(this.color, width, height).Save(filename, ImageFormat.Png);
+        }
+
+        public void SetColorData(ref Color[,] array)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    color[y * width + x] = array[x, y];
+                }
+            }
+        }
+
+        #endregion Public Methods
+
+        #region Private Methods
+
         private void SetHeightData(ref float[,] array)
         {
             float highestValue = array.GetHighestValue();
@@ -82,32 +115,12 @@ namespace Slartibartfast.Textures
             }
         }
 
-        public void SetColorData(ref Color[,] array)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    color[y * width + x] = array[x, y];
-                }
-            }
-        }
-
-        public void SaveToFile(string filename, bool overwrite = true)
-        {
-            if (File.Exists(filename))
-                if (!overwrite)
-                    return;
-
-            ToBitmap(this.color, width, height).Save(filename, ImageFormat.Png);
-        }
-
         /// <summary>
         /// Taken from one of my own projects. This is originally coming from: http://stackoverflow.com/questions/13511661/create-bitmap-from-double-two-dimentional-array
         /// </summary>
         /// <param name="rawImage">The inputarray</param>
-        /// <param name="width">The width of the array.</param>
-        /// <param name="height">The height of the array.</param>
+        /// <param name="width">   The width of the array.</param>
+        /// <param name="height">  The height of the array.</param>
         /// <returns></returns>
         private unsafe System.Drawing.Bitmap ToBitmap(Color[] rawImage, int width, int height)
         {
@@ -135,12 +148,22 @@ namespace Slartibartfast.Textures
             return Image;
         }
 
+        #endregion Private Methods
+
+        #region Private Structs
+
         private struct ColorARGB
         {
+            #region Public Fields
+
+            public byte A;
             public byte B;
             public byte G;
             public byte R;
-            public byte A;
+
+            #endregion Public Fields
+
+            #region Public Constructors
 
             public ColorARGB(System.Drawing.Color color)
             {
@@ -158,10 +181,18 @@ namespace Slartibartfast.Textures
                 B = b;
             }
 
+            #endregion Public Constructors
+
+            #region Public Methods
+
             public System.Drawing.Color ToColor()
             {
                 return System.Drawing.Color.FromArgb(A, R, G, B);
             }
+
+            #endregion Public Methods
         }
+
+        #endregion Private Structs
     }
 }

@@ -2,12 +2,18 @@
 {
     public struct PlanetSettings
     {
-        public float DistanceToSun;
-        public Atmosphere Atmosphere;
-        public float Radius;
-        public float Mass;
+        #region Public Fields
+
         public int Age;
+        public Atmosphere Atmosphere;
+        public float DistanceToSun;
+        public float Mass;
+        public float Radius;
         public int TectonicPlatesCount;
+
+        #endregion Public Fields
+
+        #region Public Methods
 
         public static PlanetSettings Earth()
         {
@@ -21,6 +27,23 @@
             Atmosphere a = new Atmosphere();
             a.PressureAtSealevel = Atmosphere.EARTH_PRESSURE_AT_SEALEVEL;
             a.ScaleHeight = Atmosphere.EARTH_SCALE_HEIGHT;
+
+            s.Atmosphere = a;
+            return s;
+        }
+
+        public static PlanetSettings Mars()
+        {
+            PlanetSettings s = new PlanetSettings();
+            s.DistanceToSun = 0.63f;
+            s.Mass = 0.11f;
+            s.Radius = 3396;
+            s.Age = 4500;
+            s.TectonicPlatesCount = 4;
+
+            Atmosphere a = new Atmosphere();
+            a.PressureAtSealevel = 0.01f;
+            a.ScaleHeight = 11.1f;
 
             s.Atmosphere = a;
             return s;
@@ -58,21 +81,6 @@
             return s;
         }
 
-        public static PlanetSettings Mars()
-        {
-            PlanetSettings s = new PlanetSettings();
-            s.DistanceToSun = 0.63f;
-            s.Mass = 0.11f;
-            s.Radius = 3396;
-            s.Age = 4500;
-            s.TectonicPlatesCount = 4;
-
-            Atmosphere a = new Atmosphere();
-            a.PressureAtSealevel = 0.01f;
-            a.ScaleHeight = 11.1f;
-
-            s.Atmosphere = a;
-            return s;
-        }
+        #endregion Public Methods
     }
 }

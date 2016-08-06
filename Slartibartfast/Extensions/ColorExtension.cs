@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 
 namespace Slartibartfast.Extensions
 {
     public static class ColorExtension
     {
+        #region Public Methods
+
         public static Color Lerp(Color c1, Color c2, float value)
         {
             if (value < 0)
@@ -23,5 +20,7 @@ namespace Slartibartfast.Extensions
                 (int)(c1.B * value + c2.B * (1 - value))
                 );
         }
+
+        #endregion Public Methods
     }
 }

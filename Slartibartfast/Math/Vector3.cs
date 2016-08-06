@@ -1,5 +1,4 @@
-﻿#region License
-/*
+﻿/*
 MIT License
 Copyright © 2006 The Mono.Xna Team
 All rights reserved.
@@ -21,39 +20,15 @@ SOFTWARE.
 
 Removed Methods: Transform, TransformNormal, Barycentric, Hermite, CatmullRom
 */
-#endregion License
 
 using Slartibartfast.Extensions;
 using System;
-using System.ComponentModel;
 using System.Text;
 
 namespace Slartibartfast.Math
 {
     public struct Vector3 : IEquatable<Vector3>
     {
-        #region Private Fields
-
-        private static Vector3 zero = new Vector3(0f, 0f, 0f);
-        private static Vector3 one = new Vector3(1f, 1f, 1f);
-        private static Vector3 unitX = new Vector3(1f, 0f, 0f);
-        private static Vector3 unitY = new Vector3(0f, 1f, 0f);
-        private static Vector3 unitZ = new Vector3(0f, 0f, 1f);
-        private static Vector3 up = new Vector3(0f, 1f, 0f);
-        private static Vector3 down = new Vector3(0f, -1f, 0f);
-        private static Vector3 right = new Vector3(1f, 0f, 0f);
-        private static Vector3 left = new Vector3(-1f, 0f, 0f);
-        private static Vector3 forward = new Vector3(0f, 0f, -1f);
-        private static Vector3 backward = new Vector3(0f, 0f, 1f);
-
-        #endregion Private Fields
-
-        public float[] AsVectorArray()
-        {
-            return new float[] { X, Y, Z };
-        }
-
-
         #region Public Fields
 
         public float X;
@@ -62,17 +37,77 @@ namespace Slartibartfast.Math
 
         #endregion Public Fields
 
+        #region Private Fields
 
-        #region Properties
+        private static Vector3 backward = new Vector3(0f, 0f, 1f);
+        private static Vector3 down = new Vector3(0f, -1f, 0f);
+        private static Vector3 forward = new Vector3(0f, 0f, -1f);
+        private static Vector3 left = new Vector3(-1f, 0f, 0f);
+        private static Vector3 one = new Vector3(1f, 1f, 1f);
+        private static Vector3 right = new Vector3(1f, 0f, 0f);
+        private static Vector3 unitX = new Vector3(1f, 0f, 0f);
+        private static Vector3 unitY = new Vector3(0f, 1f, 0f);
+        private static Vector3 unitZ = new Vector3(0f, 0f, 1f);
+        private static Vector3 up = new Vector3(0f, 1f, 0f);
+        private static Vector3 zero = new Vector3(0f, 0f, 0f);
 
-        public static Vector3 Zero
+        #endregion Private Fields
+
+        #region Public Constructors
+
+        public Vector3(float x, float y, float z)
         {
-            get { return zero; }
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
+        }
+
+        public Vector3(float value)
+        {
+            this.X = value;
+            this.Y = value;
+            this.Z = value;
+        }
+
+        public Vector3(Vector2 value, float z)
+        {
+            this.X = value.X;
+            this.Y = value.Y;
+            this.Z = z;
+        }
+
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        public static Vector3 Backward
+        {
+            get { return backward; }
+        }
+
+        public static Vector3 Down
+        {
+            get { return down; }
+        }
+
+        public static Vector3 Forward
+        {
+            get { return forward; }
+        }
+
+        public static Vector3 Left
+        {
+            get { return left; }
         }
 
         public static Vector3 One
         {
             get { return one; }
+        }
+
+        public static Vector3 Right
+        {
+            get { return right; }
         }
 
         public static Vector3 UnitX
@@ -95,62 +130,12 @@ namespace Slartibartfast.Math
             get { return up; }
         }
 
-        public static Vector3 Down
+        public static Vector3 Zero
         {
-            get { return down; }
+            get { return zero; }
         }
 
-        public static Vector3 Right
-        {
-            get { return right; }
-        }
-
-        public static Vector3 Left
-        {
-            get { return left; }
-        }
-
-        public static Vector3 Forward
-        {
-            get { return forward; }
-        }
-
-        public static Vector3 Backward
-        {
-            get { return backward; }
-        }
-
-        #endregion Properties
-
-
-        #region Constructors
-
-        public Vector3(float x, float y, float z)
-        {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
-        }
-
-
-        public Vector3(float value)
-        {
-            this.X = value;
-            this.Y = value;
-            this.Z = value;
-        }
-
-
-        public Vector3(Vector2 value, float z)
-        {
-            this.X = value.X;
-            this.Y = value.Y;
-            this.Z = z;
-        }
-
-
-        #endregion Constructors
-
+        #endregion Public Properties
 
         #region Public Methods
 
@@ -267,35 +252,6 @@ namespace Slartibartfast.Math
             result = vector1.X * vector2.X + vector1.Y * vector2.Y + vector1.Z * vector2.Z;
         }
 
-        public override bool Equals(object obj)
-        {
-            return (obj is Vector3) ? this == (Vector3)obj : false;
-        }
-
-        public bool Equals(Vector3 other)
-        {
-            return this == other;
-        }
-
-        public override int GetHashCode()
-        {
-            return (int)(this.X + this.Y + this.Z);
-        }
-
-        public float Length()
-        {
-            float result;
-            DistanceSquared(ref this, ref zero, out result);
-            return (float)System.Math.Sqrt(result);
-        }
-
-        public float LengthSquared()
-        {
-            float result;
-            DistanceSquared(ref this, ref zero, out result);
-            return result;
-        }
-
         public static Vector3 Lerp(Vector3 value1, Vector3 value2, float amount)
         {
             return new Vector3(
@@ -385,11 +341,6 @@ namespace Slartibartfast.Math
             result = new Vector3(-value.X, -value.Y, -value.Z);
         }
 
-        public void Normalize()
-        {
-            Normalize(ref this, out this);
-        }
-
         public static Vector3 Normalize(Vector3 vector)
         {
             Normalize(ref vector, out vector);
@@ -406,69 +357,6 @@ namespace Slartibartfast.Math
             result.Z = value.Z * factor;
         }
 
-        public static Vector3 Reflect(Vector3 vector, Vector3 normal)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static void Reflect(ref Vector3 vector, ref Vector3 normal, out Vector3 result)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static Vector3 Subtract(Vector3 value1, Vector3 value2)
-        {
-            value1.X -= value2.X;
-            value1.Y -= value2.Y;
-            value1.Z -= value2.Z;
-            return value1;
-        }
-
-        public static void Subtract(ref Vector3 value1, ref Vector3 value2, out Vector3 result)
-        {
-            result.X = value1.X - value2.X;
-            result.Y = value1.Y - value2.Y;
-            result.Z = value1.Z - value2.Z;
-        }
-
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder(32);
-            sb.Append("{X:");
-            sb.Append(this.X);
-            sb.Append(" Y:");
-            sb.Append(this.Y);
-            sb.Append(" Z:");
-            sb.Append(this.Z);
-            sb.Append("}");
-            return sb.ToString();
-        }
-
-        #endregion Public methods
-
-
-        #region Operators
-
-        public static bool operator ==(Vector3 value1, Vector3 value2)
-        {
-            return value1.X == value2.X
-                && value1.Y == value2.Y
-                && value1.Z == value2.Z;
-        }
-
-        public static bool operator !=(Vector3 value1, Vector3 value2)
-        {
-            return !(value1 == value2);
-        }
-
-        public static Vector3 operator +(Vector3 value1, Vector3 value2)
-        {
-            value1.X += value2.X;
-            value1.Y += value2.Y;
-            value1.Z += value2.Z;
-            return value1;
-        }
-
         public static Vector3 operator -(Vector3 value)
         {
             value = new Vector3(-value.X, -value.Y, -value.Z);
@@ -481,6 +369,11 @@ namespace Slartibartfast.Math
             value1.Y -= value2.Y;
             value1.Z -= value2.Z;
             return value1;
+        }
+
+        public static bool operator !=(Vector3 value1, Vector3 value2)
+        {
+            return !(value1 == value2);
         }
 
         public static Vector3 operator *(Vector3 value1, Vector3 value2)
@@ -524,6 +417,98 @@ namespace Slartibartfast.Math
             return value;
         }
 
-        #endregion
+        public static Vector3 operator +(Vector3 value1, Vector3 value2)
+        {
+            value1.X += value2.X;
+            value1.Y += value2.Y;
+            value1.Z += value2.Z;
+            return value1;
+        }
+
+        public static bool operator ==(Vector3 value1, Vector3 value2)
+        {
+            return value1.X == value2.X
+                && value1.Y == value2.Y
+                && value1.Z == value2.Z;
+        }
+
+        public static Vector3 Reflect(Vector3 vector, Vector3 normal)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void Reflect(ref Vector3 vector, ref Vector3 normal, out Vector3 result)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Vector3 Subtract(Vector3 value1, Vector3 value2)
+        {
+            value1.X -= value2.X;
+            value1.Y -= value2.Y;
+            value1.Z -= value2.Z;
+            return value1;
+        }
+
+        public static void Subtract(ref Vector3 value1, ref Vector3 value2, out Vector3 result)
+        {
+            result.X = value1.X - value2.X;
+            result.Y = value1.Y - value2.Y;
+            result.Z = value1.Z - value2.Z;
+        }
+
+        public float[] AsVectorArray()
+        {
+            return new float[] { X, Y, Z };
+        }
+
+        public override bool Equals(object obj)
+        {
+            return (obj is Vector3) ? this == (Vector3)obj : false;
+        }
+
+        public bool Equals(Vector3 other)
+        {
+            return this == other;
+        }
+
+        public override int GetHashCode()
+        {
+            return (int)(this.X + this.Y + this.Z);
+        }
+
+        public float Length()
+        {
+            float result;
+            DistanceSquared(ref this, ref zero, out result);
+            return (float)System.Math.Sqrt(result);
+        }
+
+        public float LengthSquared()
+        {
+            float result;
+            DistanceSquared(ref this, ref zero, out result);
+            return result;
+        }
+
+        public void Normalize()
+        {
+            Normalize(ref this, out this);
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder(32);
+            sb.Append("{X:");
+            sb.Append(this.X);
+            sb.Append(" Y:");
+            sb.Append(this.Y);
+            sb.Append(" Z:");
+            sb.Append(this.Z);
+            sb.Append("}");
+            return sb.ToString();
+        }
+
+        #endregion Public Methods
     }
 }

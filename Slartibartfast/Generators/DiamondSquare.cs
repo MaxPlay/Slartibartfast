@@ -1,31 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Slartibartfast.Extensions;
+﻿using Slartibartfast.Extensions;
+using System;
 
 namespace Slartibartfast.Generators
 {
     internal class DiamondSquare
     {
-        Random random;
+        #region Private Fields
+
+        private Random random;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public DiamondSquare()
         {
             random = new Random();
         }
 
+        #endregion Public Constructors
+
+        #region Public Methods
+
         /// <summary>
-        /// This is basically taken from https://github.com/eogas/DiamondSquare, but modified to fit my needs in terms of readability and usability.
-        /// 
+        /// This is basically taken from https://github.com/eogas/DiamondSquare, but modified to fit
+        /// my needs in terms of readability and usability.
+        ///
         /// This generates random noise using the diamond square algorithm.
         /// </summary>
-        /// <param name="size">The size of the resulting array. Needs to be a Power of 2.</param>
-        /// <param name="seed">The random seed.</param>
+        /// <param name="size">        
+        /// The size of the resulting array. Needs to be a Power of 2.
+        /// </param>
+        /// <param name="seed">        The random seed.</param>
         /// <param name="minElevation">The min elevation of the terrain.</param>
         /// <param name="maxElevation">The max elevation of the terrain.</param>
-        /// <param name="noise">The noise applied to the result.</param>
+        /// <param name="noise">       The noise applied to the result.</param>
         /// <returns></returns>
         public float[,] Generate(int size, int seed = 0, float minElevation = 0, float maxElevation = 255, float noise = 0.0f)
         {
@@ -49,13 +58,13 @@ namespace Slartibartfast.Generators
 
             /*
 			 * Use temporary named variables to simplify equations
-			 * 
+			 *
 			 * s0 . d0. s1
-			 *  . . . . . 
+			 *  . . . . .
 			 * d1 . cn. d2
-			 *  . . . . . 
+			 *  . . . . .
 			 * s2 . d3. s3
-			 * 
+			 *
 			 * */
             float s0, s1, s2, s3, d0, d1, d2, d3, center, modNoise;
 
@@ -109,9 +118,15 @@ namespace Slartibartfast.Generators
             return grid;
         }
 
+        #endregion Public Methods
+
+        #region Private Methods
+
         private bool IsPow2(int a)
         {
             return (a & (a - 1)) == 0;
         }
+
+        #endregion Private Methods
     }
 }

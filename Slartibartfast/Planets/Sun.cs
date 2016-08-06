@@ -1,9 +1,4 @@
 ﻿using Slartibartfast.Math;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Slartibartfast.Planets
 {
@@ -19,51 +14,42 @@ namespace Slartibartfast.Planets
 
     public class Sun
     {
-        public const float SOL_RADIUS = 1;
-        public const float SOL_MASS = 1;
+        #region Public Fields
+
         public const float SOL_ABSOLUTE_MAGNITUDE = 4.83f;
         public const float SOL_INNER_CHZ = 0.95f;
+        public const float SOL_MASS = 1;
+        public const float SOL_RADIUS = 1;
         public const SpectralClass SOL_SPECTRAL_CLASS = SpectralClass.G;
 
+        #endregion Public Fields
 
-        /// <summary>
-        /// Returns the Bolometric Correction Constant of the corresponding Spectral Class. The spectral class of the sun is G.
-        /// </summary>
-        /// <param name="SpectralClass">The spectral class for the bolometric correction value.</param>
-        /// <returns></returns>
-        public static float BolometricCorrectionConstant(SpectralClass SpectralClass)
-        {
-            switch (SpectralClass)
-            {
-                case SpectralClass.B:
-                    return -2f;
-                case SpectralClass.A:
-                    return -0.3f;
-                case SpectralClass.F:
-                    return -0.15f;
-                case SpectralClass.G:
-                    return -0.4f;
-                case SpectralClass.K:
-                    return -0.8f;
-                case SpectralClass.M:
-                    return -2f;
-                default:
-                    return 0;
-            }
-        }
+        #region Private Fields
+
+        private const double HABITABLE_ZONE_INNER_CONSTANT = 0.53;
+        private const double HABITABLE_ZONE_OUTER_CONSTANT = 1.1;
+        private const float SOL_CORRECTED_BOLOMETRIC_CONSTANT = 4.72f;
+        private float absoluteMagnitude;
+
+        private float mass;
 
         private float radius;
 
-        /// <summary>
-        /// The radius of the sun in solar radii. Our sun (Sol) has the value 1.
-        /// </summary>
-        public float Radius
-        {
-            get { return radius; }
-            set { radius = value; }
-        }
+        private SpectralClass spectralClass;
 
-        private float mass;
+        #endregion Private Fields
+
+        #region Public Properties
+
+        /// <summary>
+        /// The absolute magnitude of the sun. The relative magnitude is the magnitude as perceived
+        /// through the atmosphere of the earth.
+        /// </summary>
+        public float AbsoluteMagnitude
+        {
+            get { return absoluteMagnitude; }
+            set { absoluteMagnitude = value; }
+        }
 
         /// <summary>
         /// The mass of the sun in solar masses. Our sun (Sol) has the value 1.
@@ -74,24 +60,66 @@ namespace Slartibartfast.Planets
             set { mass = value; }
         }
 
-        private float absoluteMagnitude;
-
         /// <summary>
-        /// The absolute magnitude of the sun.
-        /// The relative magnitude is the magnitude as perceived through the atmosphere of the earth.
+        /// The radius of the sun in solar radii. Our sun (Sol) has the value 1.
         /// </summary>
-        public float AbsoluteMagnitude
+        public float Radius
         {
-            get { return absoluteMagnitude; }
-            set { absoluteMagnitude = value; }
+            get { return radius; }
+            set { radius = value; }
         }
-
-        private SpectralClass spectralClass;
 
         public SpectralClass SpectralClass
         {
             get { return spectralClass; }
             set { spectralClass = value; }
+        }
+
+        #endregion Public Properties
+
+        #region Public Methods
+
+        /// <summary>
+        /// Returns the Bolometric Correction Constant of the corresponding Spectral Class. The
+        /// spectral class of the sun is G.
+        /// </summary>
+        /// <param name="SpectralClass">The spectral class for the bolometric correction value.</param>
+        /// <returns></returns>
+        public static float BolometricCorrectionConstant(SpectralClass SpectralClass)
+        {
+            switch (SpectralClass)
+            {
+                case SpectralClass.B:
+                    return -2f;
+
+                case SpectralClass.A:
+                    return -0.3f;
+
+                case SpectralClass.F:
+                    return -0.15f;
+
+                case SpectralClass.G:
+                    return -0.4f;
+
+                case SpectralClass.K:
+                    return -0.8f;
+
+                case SpectralClass.M:
+                    return -2f;
+
+                default:
+                    return 0;
+            }
+        }
+
+        public static Sun GetSol()
+        {
+            Sun s = new Sun();
+            s.absoluteMagnitude = SOL_ABSOLUTE_MAGNITUDE;
+            s.mass = SOL_MASS;
+            s.radius = SOL_RADIUS;
+            s.spectralClass = SOL_SPECTRAL_CLASS;
+            return s;
         }
 
         /// <summary>
@@ -101,12 +129,14 @@ namespace Slartibartfast.Planets
         public MinMax<float> GetHabitableZone()
         {
             float correctedBolometricMagnitude = this.absoluteMagnitude - BolometricCorrectionConstant(this.spectralClass);
-            float absoluteLuminosity = (float)System.Math.Pow(10, (correctedBolometricMagnitude - 4.72) / -2.5f);
+            float absoluteLuminosity = (float)System.Math.Pow(10, (correctedBolometricMagnitude - SOL_CORRECTED_BOLOMETRIC_CONSTANT) / -2.5f);
 
-            float min = (float)System.Math.Sqrt(absoluteLuminosity / 1.1);
-            float max = (float)System.Math.Sqrt(absoluteLuminosity / 0.53);
+            float min = (float)System.Math.Sqrt(absoluteLuminosity / HABITABLE_ZONE_OUTER_CONSTANT);
+            float max = (float)System.Math.Sqrt(absoluteLuminosity / HABITABLE_ZONE_INNER_CONSTANT);
 
             return new MinMax<float>(min, max);
         }
+
+        #endregion Public Methods
     }
 }

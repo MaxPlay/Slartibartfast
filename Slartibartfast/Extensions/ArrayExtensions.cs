@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Slartibartfast.Extensions
+﻿namespace Slartibartfast.Extensions
 {
     public static class ArrayExtensions
     {
+        #region Public Methods
+
         public static float GetHighestValue(this float[,] f)
         {
             float value = float.MinValue;
@@ -43,5 +39,7 @@ namespace Slartibartfast.Extensions
 
             return value;
         }
+
+        #endregion Public Methods
     }
 }

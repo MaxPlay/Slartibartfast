@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Slartibartfast.Extensions;
+﻿using Slartibartfast.Extensions;
 
 namespace Slartibartfast.Generators.NoiseUNUSED
 {
     public class Fractal : Noise
     {
+        #region Protected Fields
+
+        protected float[] exponent;
         protected float h;
         protected float lacunarity;
-        protected float[] exponent;
+
+        #endregion Protected Fields
+
+        #region Public Constructors
 
         public Fractal() : base()
         {
@@ -23,18 +24,9 @@ namespace Slartibartfast.Generators.NoiseUNUSED
             Init(dimensions, seed, h, lacunarity);
         }
 
-        public void Init(int dimensions, int seed, float h, float lacunarity)
-        {
-            Init(dimensions, seed);
-            this.h = h;
-            this.lacunarity = lacunarity;
-            float f = 1;
-            for (int i = 0; i < MathHelper.MAX_OCTAVES; i++)
-            {
-                exponent[i] = MathHelper.Pow(f, -h);
-                f *= lacunarity;
-            }
-        }
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public float fBm(float[] vector, float octaves)
         {
@@ -61,7 +53,7 @@ namespace Slartibartfast.Generators.NoiseUNUSED
             return MathHelper.Clamp(-0.99999f, 0.99999f, value);
         }
 
-        public float Turbulence(float[] vector, float octaves)
+        public float fBmTest(float[] vector, float octaves)
         {
             float value = 0;
             float[] temp = new float[MathHelper.MAX_DIMENSIONS];
@@ -82,33 +74,11 @@ namespace Slartibartfast.Generators.NoiseUNUSED
 
             octaves -= (int)octaves;
             if (octaves > MathHelper.DELTA)
-                value += octaves * System.Math.Abs(GenerateNoise(temp) * exponent[i]);
-            return MathHelper.Clamp(-0.99999f, 0.99999f, value);
-        }
+                value += octaves * GenerateNoise(temp) * exponent[i];
 
-        public float Multifractal(float[] vector, float octaves, float Offset)
-        {
-            float value = 1;
-            float[] temp = new float[MathHelper.MAX_DIMENSIONS];
-            int i;
-            for (i = 0; i < dimensions; i++)
-            {
-                temp[i] = vector[i];
-            }
-
-            for (i = 0; i < octaves; i++)
-            {
-                value += GenerateNoise(temp) * exponent[i];
-                for (int j = 0; j < dimensions; j++)
-                {
-                    temp[j] *= lacunarity;
-                }
-            }
-
-            octaves -= (int)octaves;
-            if (octaves > MathHelper.DELTA)
-                value += octaves * (GenerateNoise(temp) * exponent[i] + Offset);
-            return MathHelper.Clamp(-0.99999f, 0.99999f, value);
+            if (value <= 0.0f)
+                return (float)-System.Math.Pow(-value, 0.7f);
+            return (float)System.Math.Pow(value, 1 + GenerateNoise(temp) * value);
         }
 
         public float Heterofractal(float[] vector, float octaves, float Offset)
@@ -169,6 +139,44 @@ namespace Slartibartfast.Generators.NoiseUNUSED
             return MathHelper.Clamp(-0.99999f, 0.99999f, value);
         }
 
+        public void Init(int dimensions, int seed, float h, float lacunarity)
+        {
+            Init(dimensions, seed);
+            this.h = h;
+            this.lacunarity = lacunarity;
+            float f = 1;
+            for (int i = 0; i < MathHelper.MAX_OCTAVES; i++)
+            {
+                exponent[i] = MathHelper.Pow(f, -h);
+                f *= lacunarity;
+            }
+        }
+
+        public float Multifractal(float[] vector, float octaves, float Offset)
+        {
+            float value = 1;
+            float[] temp = new float[MathHelper.MAX_DIMENSIONS];
+            int i;
+            for (i = 0; i < dimensions; i++)
+            {
+                temp[i] = vector[i];
+            }
+
+            for (i = 0; i < octaves; i++)
+            {
+                value += GenerateNoise(temp) * exponent[i];
+                for (int j = 0; j < dimensions; j++)
+                {
+                    temp[j] *= lacunarity;
+                }
+            }
+
+            octaves -= (int)octaves;
+            if (octaves > MathHelper.DELTA)
+                value += octaves * (GenerateNoise(temp) * exponent[i] + Offset);
+            return MathHelper.Clamp(-0.99999f, 0.99999f, value);
+        }
+
         public float RidgedMultifractal(float[] vector, float octaves, float Offset, float gain)
         {
             float signal = Offset - System.Math.Abs(GenerateNoise(vector));
@@ -197,7 +205,7 @@ namespace Slartibartfast.Generators.NoiseUNUSED
             return MathHelper.Clamp(-0.99999f, 0.99999f, value);
         }
 
-        public float fBmTest(float[] vector, float octaves)
+        public float Turbulence(float[] vector, float octaves)
         {
             float value = 0;
             float[] temp = new float[MathHelper.MAX_DIMENSIONS];
@@ -218,11 +226,10 @@ namespace Slartibartfast.Generators.NoiseUNUSED
 
             octaves -= (int)octaves;
             if (octaves > MathHelper.DELTA)
-                value += octaves * GenerateNoise(temp) * exponent[i];
-
-            if (value <= 0.0f)
-                return (float)-System.Math.Pow(-value, 0.7f);
-            return (float)System.Math.Pow(value, 1 + GenerateNoise(temp) * value);
+                value += octaves * System.Math.Abs(GenerateNoise(temp) * exponent[i]);
+            return MathHelper.Clamp(-0.99999f, 0.99999f, value);
         }
+
+        #endregion Public Methods
     }
 }

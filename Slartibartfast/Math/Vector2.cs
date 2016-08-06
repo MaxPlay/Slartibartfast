@@ -1,5 +1,4 @@
-﻿#region License
-/*
+﻿/*
 MIT License
 Copyright © 2006 The Mono.Xna Team
 All rights reserved.
@@ -19,31 +18,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-
 Removed Methods: Transform, TransformNormal, Barycentric, Hermite, CatmullRom
 */
-#endregion License
 
+using Slartibartfast.Extensions;
 using System;
-using System.Text;
 using System.Drawing;
 using System.Globalization;
-using Slartibartfast.Extensions;
 
 namespace Slartibartfast.Math
 {
     public struct Vector2 : IEquatable<Vector2>
     {
-        #region Private Fields
-
-        private static Vector2 zeroVector = new Vector2(0f, 0f);
-        private static Vector2 unitVector = new Vector2(1f, 1f);
-        private static Vector2 unitXVector = new Vector2(1f, 0f);
-        private static Vector2 unitYVector = new Vector2(0f, 1f);
-
-        #endregion Private Fields
-
-
         #region Public Fields
 
         public float X;
@@ -51,37 +37,16 @@ namespace Slartibartfast.Math
 
         #endregion Public Fields
 
-        public float[] AsVectorArray()
-        {
-            return new float[] { X, Y };
-        }
+        #region Private Fields
 
-        #region Properties
+        private static Vector2 unitVector = new Vector2(1f, 1f);
+        private static Vector2 unitXVector = new Vector2(1f, 0f);
+        private static Vector2 unitYVector = new Vector2(0f, 1f);
+        private static Vector2 zeroVector = new Vector2(0f, 0f);
 
-        public static Vector2 Zero
-        {
-            get { return zeroVector; }
-        }
+        #endregion Private Fields
 
-        public static Vector2 One
-        {
-            get { return unitVector; }
-        }
-
-        public static Vector2 UnitX
-        {
-            get { return unitXVector; }
-        }
-
-        public static Vector2 UnitY
-        {
-            get { return unitYVector; }
-        }
-
-        #endregion Properties
-
-
-        #region Constructors
+        #region Public Constructors
 
         public Vector2(float x, float y)
         {
@@ -101,8 +66,31 @@ namespace Slartibartfast.Math
             this.Y = value;
         }
 
-        #endregion Constructors
+        #endregion Public Constructors
 
+        #region Public Properties
+
+        public static Vector2 One
+        {
+            get { return unitVector; }
+        }
+
+        public static Vector2 UnitX
+        {
+            get { return unitXVector; }
+        }
+
+        public static Vector2 UnitY
+        {
+            get { return unitYVector; }
+        }
+
+        public static Vector2 Zero
+        {
+            get { return zeroVector; }
+        }
+
+        #endregion Public Properties
 
         #region Public Methods
 
@@ -195,52 +183,6 @@ namespace Slartibartfast.Math
             result = (value1.X * value2.X) + (value1.Y * value2.Y);
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj is Vector2)
-            {
-                return Equals((Vector2)this);
-            }
-
-            return false;
-        }
-
-        public bool Equals(Vector2 other)
-        {
-            return (X == other.X) && (Y == other.Y);
-        }
-
-        public static Vector2 Reflect(Vector2 vector, Vector2 normal)
-        {
-            Vector2 result;
-            float val = 2.0f * ((vector.X * normal.X) + (vector.Y * normal.Y));
-            result.X = vector.X - (normal.X * val);
-            result.Y = vector.Y - (normal.Y * val);
-            return result;
-        }
-
-        public static void Reflect(ref Vector2 vector, ref Vector2 normal, out Vector2 result)
-        {
-            float val = 2.0f * ((vector.X * normal.X) + (vector.Y * normal.Y));
-            result.X = vector.X - (normal.X * val);
-            result.Y = vector.Y - (normal.Y * val);
-        }
-
-        public override int GetHashCode()
-        {
-            return X.GetHashCode() + Y.GetHashCode();
-        }
-
-        public float Length()
-        {
-            return (float)System.Math.Sqrt((X * X) + (Y * Y));
-        }
-
-        public float LengthSquared()
-        {
-            return (X * X) + (Y * Y);
-        }
-
         public static Vector2 Lerp(Vector2 value1, Vector2 value2, float amount)
         {
             return new Vector2(
@@ -318,13 +260,6 @@ namespace Slartibartfast.Math
             result.Y = -value.Y;
         }
 
-        public void Normalize()
-        {
-            float val = 1.0f / (float)System.Math.Sqrt((X * X) + (Y * Y));
-            X *= val;
-            Y *= val;
-        }
-
         public static Vector2 Normalize(Vector2 value)
         {
             float val = 1.0f / (float)System.Math.Sqrt((value.X * value.X) + (value.Y * value.Y));
@@ -340,6 +275,89 @@ namespace Slartibartfast.Math
             result.Y = value.Y * val;
         }
 
+        public static Vector2 operator -(Vector2 value)
+        {
+            value.X = -value.X;
+            value.Y = -value.Y;
+            return value;
+        }
+
+        public static Vector2 operator -(Vector2 value1, Vector2 value2)
+        {
+            value1.X -= value2.X;
+            value1.Y -= value2.Y;
+            return value1;
+        }
+
+        public static bool operator !=(Vector2 value1, Vector2 value2)
+        {
+            return value1.X != value2.X || value1.Y != value2.Y;
+        }
+
+        public static Vector2 operator *(Vector2 value1, Vector2 value2)
+        {
+            value1.X *= value2.X;
+            value1.Y *= value2.Y;
+            return value1;
+        }
+
+        public static Vector2 operator *(Vector2 value, float scaleFactor)
+        {
+            value.X *= scaleFactor;
+            value.Y *= scaleFactor;
+            return value;
+        }
+
+        public static Vector2 operator *(float scaleFactor, Vector2 value)
+        {
+            value.X *= scaleFactor;
+            value.Y *= scaleFactor;
+            return value;
+        }
+
+        public static Vector2 operator /(Vector2 value1, Vector2 value2)
+        {
+            value1.X /= value2.X;
+            value1.Y /= value2.Y;
+            return value1;
+        }
+
+        public static Vector2 operator /(Vector2 value1, float divider)
+        {
+            float factor = 1 / divider;
+            value1.X *= factor;
+            value1.Y *= factor;
+            return value1;
+        }
+
+        public static Vector2 operator +(Vector2 value1, Vector2 value2)
+        {
+            value1.X += value2.X;
+            value1.Y += value2.Y;
+            return value1;
+        }
+
+        public static bool operator ==(Vector2 value1, Vector2 value2)
+        {
+            return value1.X == value2.X && value1.Y == value2.Y;
+        }
+
+        public static Vector2 Reflect(Vector2 vector, Vector2 normal)
+        {
+            Vector2 result;
+            float val = 2.0f * ((vector.X * normal.X) + (vector.Y * normal.Y));
+            result.X = vector.X - (normal.X * val);
+            result.Y = vector.Y - (normal.Y * val);
+            return result;
+        }
+
+        public static void Reflect(ref Vector2 vector, ref Vector2 normal, out Vector2 result)
+        {
+            float val = 2.0f * ((vector.X * normal.X) + (vector.Y * normal.Y));
+            result.X = vector.X - (normal.X * val);
+            result.Y = vector.Y - (normal.Y * val);
+        }
+
         public static Vector2 Subtract(Vector2 value1, Vector2 value2)
         {
             value1.X -= value2.X;
@@ -353,6 +371,48 @@ namespace Slartibartfast.Math
             result.Y = value1.Y - value2.Y;
         }
 
+        public float[] AsVectorArray()
+        {
+            return new float[] { X, Y };
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Vector2)
+            {
+                return Equals((Vector2)this);
+            }
+
+            return false;
+        }
+
+        public bool Equals(Vector2 other)
+        {
+            return (X == other.X) && (Y == other.Y);
+        }
+
+        public override int GetHashCode()
+        {
+            return X.GetHashCode() + Y.GetHashCode();
+        }
+
+        public float Length()
+        {
+            return (float)System.Math.Sqrt((X * X) + (Y * Y));
+        }
+
+        public float LengthSquared()
+        {
+            return (X * X) + (Y * Y);
+        }
+
+        public void Normalize()
+        {
+            float val = 1.0f / (float)System.Math.Sqrt((X * X) + (Y * Y));
+            X *= val;
+            Y *= val;
+        }
+
         public override string ToString()
         {
             CultureInfo currentCulture = CultureInfo.CurrentCulture;
@@ -361,86 +421,5 @@ namespace Slartibartfast.Math
         }
 
         #endregion Public Methods
-
-
-        #region Operators
-
-        public static Vector2 operator -(Vector2 value)
-        {
-            value.X = -value.X;
-            value.Y = -value.Y;
-            return value;
-        }
-
-
-        public static bool operator ==(Vector2 value1, Vector2 value2)
-        {
-            return value1.X == value2.X && value1.Y == value2.Y;
-        }
-
-
-        public static bool operator !=(Vector2 value1, Vector2 value2)
-        {
-            return value1.X != value2.X || value1.Y != value2.Y;
-        }
-
-
-        public static Vector2 operator +(Vector2 value1, Vector2 value2)
-        {
-            value1.X += value2.X;
-            value1.Y += value2.Y;
-            return value1;
-        }
-
-
-        public static Vector2 operator -(Vector2 value1, Vector2 value2)
-        {
-            value1.X -= value2.X;
-            value1.Y -= value2.Y;
-            return value1;
-        }
-
-
-        public static Vector2 operator *(Vector2 value1, Vector2 value2)
-        {
-            value1.X *= value2.X;
-            value1.Y *= value2.Y;
-            return value1;
-        }
-
-
-        public static Vector2 operator *(Vector2 value, float scaleFactor)
-        {
-            value.X *= scaleFactor;
-            value.Y *= scaleFactor;
-            return value;
-        }
-
-
-        public static Vector2 operator *(float scaleFactor, Vector2 value)
-        {
-            value.X *= scaleFactor;
-            value.Y *= scaleFactor;
-            return value;
-        }
-
-
-        public static Vector2 operator /(Vector2 value1, Vector2 value2)
-        {
-            value1.X /= value2.X;
-            value1.Y /= value2.Y;
-            return value1;
-        }
-
-
-        public static Vector2 operator /(Vector2 value1, float divider)
-        {
-            float factor = 1 / divider;
-            value1.X *= factor;
-            value1.Y *= factor;
-            return value1;
-        }
-
-        #endregion Operators
     }
 }
