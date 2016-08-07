@@ -57,6 +57,7 @@
     <Compile Include="Math\MinMax.cs" />
     <Compile Include="PlanetGenerator.cs" />
     <Compile Include="Planets\Atmosphere.cs" />
+    <Compile Include="Planets\Biome.cs" />
     <Compile Include="Planets\Planet.cs" />
     <Compile Include="Planets\PlanetSettings.cs" />
     <Compile Include="Planets\Sun.cs" />

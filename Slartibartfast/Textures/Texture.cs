@@ -5,9 +5,7 @@ using System.IO;
 
 namespace Slartibartfast.Textures
 {
-    
-
-    internal class Texture
+    public class Texture
     {
         #region Private Fields
 
@@ -133,10 +131,10 @@ namespace Slartibartfast.Textures
                     System.Drawing.Color color = rawImage[x + y * width];
 
                     ColorARGB* position = startingPosition + x + y * width;
-                    position->A = color.A;
-                    position->R = color.R;
-                    position->G = color.G;
-                    position->B = color.B;
+                    position->R = color.A;
+                    position->G = color.R;
+                    position->B = color.G;
+                    position->A = color.B;
                 }
 
             Image.UnlockBits(bitmapData);

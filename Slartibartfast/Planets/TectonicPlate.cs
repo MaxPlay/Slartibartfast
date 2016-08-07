@@ -20,9 +20,11 @@ namespace Slartibartfast.Planets
 
         public TectonicPlate(int id)
         {
-            Random rand = new Random(MathHelper.RandomSeed != null ? (int)MathHelper.RandomSeed : 0);
+            //Note: This is for generating debug-colors only. That is the reason, because this is not streamlined with the other random-objects.
+            Random rand = new Random(DateTime.Now.Millisecond * id);
             moveDirection = rand.Vector2();
             debugColor = rand.Color();
+            heightModifier = (float)rand.NextDouble() * 2 - 1;
         }
 
         #endregion Public Constructors
@@ -46,6 +48,15 @@ namespace Slartibartfast.Planets
             get { return moveDirection; }
             set { moveDirection = value; }
         }
+
+        private float heightModifier;
+
+        public float HeightModifier
+        {
+            get { return heightModifier; }
+            set { heightModifier = value; }
+        }
+
 
         #endregion Public Properties
     }

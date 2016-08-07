@@ -11,15 +11,15 @@ namespace Slartibartfast
     {
         #region Private Fields
 
+        private TextureType outputTextures;
         private PlanetSettings planetSettings;
         private Sun sun;
-        private TextureType outputTextures;
 
         public TextureType OutputTextures
         {
             get { return outputTextures; }
         }
-        
+
         #endregion Private Fields
 
         #region Public Constructors
@@ -28,7 +28,8 @@ namespace Slartibartfast
         {
             MathHelper.RandomSeed = 1;
 
-            Planet planet = new Planet(PlanetSettings.Earth());
+            /*Planet planet = new Planet(PlanetSettings.Earth());
+
             Color[,] plates = planet.GetTectonicPlates();
             Texture tex = new Texture(360, 180, ref plates);
             tex.SaveToFile("plates.png");
@@ -43,7 +44,7 @@ namespace Slartibartfast
 
             plates = planet.GetAdjacentMoveDirection();
             tex = new Texture(360, 180, ref plates);
-            tex.SaveToFile("adjacent.png");
+            tex.SaveToFile("adjacent.png");*/
         }
 
         #endregion Public Constructors
@@ -80,7 +81,13 @@ namespace Slartibartfast
             MinMax<float> habitableZone = sun.GetHabitableZone();
             float habitableZoneLocation = (planet.DistanceToSun - habitableZone.Min) / (habitableZone.Max - habitableZone.Min);
             planet.GenerateVegetation();
-            planet.GenerateTextures(outputTextures);
+            outputTextures = outputTextures.Include(TextureType.Gloss);
+            outputTextures = outputTextures.Include(TextureType.Height);
+            Tuple<Texture, Texture, Texture> tex = planet.GenerateTextures(outputTextures);
+
+            tex.Item1?.SaveToFile("color.png");
+            tex.Item2?.SaveToFile("gloss.png");
+            tex.Item3?.SaveToFile("height.png");
         }
 
         #endregion Public Methods

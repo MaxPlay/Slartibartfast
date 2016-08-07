@@ -1,10 +1,10 @@
 ﻿using Slartibartfast.Extensions;
 using Slartibartfast.Generators;
 using Slartibartfast.Math;
+using Slartibartfast.Textures;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Slartibartfast.Textures;
 
 namespace Slartibartfast.Planets
 {
@@ -39,6 +39,8 @@ namespace Slartibartfast.Planets
 
         #endregion Public Fields
 
+
+
         #region Private Fields
 
         private int age;
@@ -60,6 +62,15 @@ namespace Slartibartfast.Planets
 
         private int tectonicPlatesCount;
 
+        private float sealevel;
+
+        public float Sealevel
+        {
+            get { return sealevel; }
+            set { sealevel = value; }
+        }
+
+
         #endregion Private Fields
 
         #region Public Constructors
@@ -71,28 +82,21 @@ namespace Slartibartfast.Planets
             this.distanceToSun = settings.DistanceToSun;
             this.mass = settings.Mass;
             this.radius = settings.Radius;
-            this.tectonicPlatesCount = 20;//settings.TectonicPlatesCount;
+            this.tectonicPlatesCount = settings.TectonicPlatesCount;
 
             // One texel for every degree in geographical coordinates.
             surface = new SurfaceTexel[360, 180];
             GenerateTectonicPlates();
+            GenerateSurface();
             GenerateBorders();
             ExtendBorders();
             GenerateHeightValues();
             ApplyPlateTectonics();
         }
 
-        internal void GenerateTextures(TextureType outputTextures)
-        {
-
-        }
-
-        internal void GenerateVegetation()
-        {
-
-        }
-
         #endregion Public Constructors
+
+
 
         #region Public Properties
 
@@ -145,294 +149,9 @@ namespace Slartibartfast.Planets
 
         #endregion Public Properties
 
+
+
         #region Public Methods
-
-        /// <summary>
-        /// Raises and lowers the terrain according to the plates
-        /// </summary>
-        /// <param name="limit"></param>
-        public void ApplyPlateTectonics(int limit = 25)
-        {
-            for (int y = -90; y < 90; y++)
-            {
-                for (int x = -180; x < 180; x++)
-                {
-                    SurfaceTexel texel = GetSurfaceTexel(x, y);
-                    Vector2 ownDirection = tectonicPlates[texel.TectonicPlateID].MoveDirection;
-                    Vector2 adjacentDirection = texel.AdjacentDirection;
-                    // if (adjacentDirection.Length() == 0)
-                    //continue;
-
-                    Vector2 cumulatedDirection = ownDirection + adjacentDirection;
-                    float multiplier = cumulatedDirection.Length();
-
-                    if (y < 0)
-                        multiplier = ((y + 90) / 90f) * multiplier + 1 - ((y + 90) / 90f);
-
-                    if (y > 0)
-                        multiplier = ((180 - (y + 90)) / 90f) * multiplier + 1 - ((180 - (y + 90)) / 90f);
-
-                    multiplier--;
-                    multiplier *= 0.05f;
-                    multiplier++;
-                    texel.Height *= multiplier;
-                    SetSurfaceTexel(x, y, texel);
-                }
-            }
-        }
-
-        /// <summary>
-        /// This method extends the borders until either a certain limit is reached or the whole area
-        /// is filled. This is used as a falloff for the plates that work together. The nearer two
-        /// plates are, the more they have impact on each other.
-        /// </summary>
-        /// <param name="limit">
-        /// The limit of the extended border. This means that the extension never excedes over this
-        /// value. The defaulvalue is 15.
-        /// </param>
-        public void ExtendBorders(int limit = 25)
-        {
-            int emptyTiles = 180 * 360;
-            for (int y = -90; y < 90; y++)
-            {
-                for (int x = -180; x < 180; x++)
-                {
-                    SurfaceTexel texel = GetSurfaceTexel(x, y);
-                    if (texel.Distance > 0)
-                        emptyTiles--;
-                }
-            }
-
-            int targetheight = 1;
-            int limitheight = limit;
-            while (emptyTiles > 0)
-            {
-                Console.WriteLine(emptyTiles);
-
-                for (int y = -90; y < 90; y++)
-                {
-                    for (int x = -180; x < 180; x++)
-                    {
-                        SurfaceTexel texel = GetSurfaceTexel(x, y);
-                        int dist = texel.Distance;
-
-                        if (dist > 0)
-                            continue;
-
-                        SurfaceTexel[] dists = new SurfaceTexel[4];
-
-                        dists[0] = GetSurfaceTexel(x - 1, y);
-                        dists[1] = GetSurfaceTexel(x + 1, y);
-                        dists[2] = GetSurfaceTexel(x, y - 1);
-                        dists[3] = GetSurfaceTexel(x, y + 1);
-
-                        List<Vector2> heightreached = new List<Vector2>();
-                        for (int i = 0; i < 4; i++)
-                        {
-                            if (dists[i].Distance == targetheight)
-                            {
-                                heightreached.Add(dists[i].AdjacentDirection);
-                            }
-                        }
-
-                        if (heightreached.Count > 0)
-                        {
-                            if (targetheight == limitheight)
-                                texel.Distance = limitheight;
-                            else
-                                texel.Distance = targetheight + 1;
-                            emptyTiles--;
-
-                            Vector2 adjacentMoveDirection = Vector2.Zero;
-                            for (int i = 0; i < heightreached.Count; i++)
-                            {
-                                adjacentMoveDirection += heightreached[i] / (float)heightreached.Count;
-                            }
-
-                            texel.AdjacentDirection = adjacentMoveDirection * (1f - targetheight / (float)limitheight);
-                        }
-                        SetSurfaceTexel(x, y, texel);
-                    }
-                }
-                targetheight++;
-                if (targetheight > limitheight)
-                    targetheight = limitheight;
-            }
-        }
-
-        /// <summary>
-        /// This method generates a border around the area where two plates meet. This line is always
-        /// 2 units wide. It also sets the adjacent plates.
-        /// </summary>
-        public void GenerateBorders()
-        {
-            for (int y = -90; y < 90; y++)
-            {
-                for (int x = -180; x < 180; x++)
-                {
-                    SurfaceTexel texel = GetSurfaceTexel(x, y);
-                    int plateID = texel.TectonicPlateID;
-
-                    int[] plates = new int[4];
-
-                    plates[0] = GetSurfaceTexel(x - 1, y).TectonicPlateID;
-                    plates[1] = GetSurfaceTexel(x + 1, y).TectonicPlateID;
-                    plates[2] = GetSurfaceTexel(x, y - 1).TectonicPlateID;
-                    plates[3] = GetSurfaceTexel(x, y + 1).TectonicPlateID;
-
-                    texel.Distance = 0;
-                    for (int i = 0; i < 4; i++)
-                    {
-                        if (plates[i] != plateID)
-                        {
-                            texel.Distance = 1;
-                            break;
-                        }
-                    }
-
-                    List<Vector2> otherMoveDirections = new List<Vector2>();
-                    for (int i = 0; i < 4; i++)
-                    {
-                        if (plates[i] != plateID)
-                        {
-                            otherMoveDirections.Add(tectonicPlates[plates[i]].MoveDirection);
-                        }
-                    }
-
-                    Vector2 adjacentMoveDirection = Vector2.Zero;
-                    for (int i = 0; i < otherMoveDirections.Count; i++)
-                    {
-                        adjacentMoveDirection += otherMoveDirections[i] / (float)otherMoveDirections.Count;
-                    }
-
-                    texel.AdjacentDirection = adjacentMoveDirection;
-
-                    SetSurfaceTexel(x, y, texel);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Generates a terrain by using simplex noise. This is merely the basis for every further
-        /// calculations and shall be used as a noisey nonlinear terrain. The next step will be a
-        /// linear interpolation on both ends of the images to unify this point to a median value.
-        /// </summary>
-        public void GenerateHeightValues()
-        {
-            Simplex simplexNoise = new Simplex(256, 0.1);
-
-            int xResolution = 180;
-            int yResolution = 180;
-
-            int frequency = 128;
-
-            float[,] height = new float[xResolution, yResolution];
-
-            int steps = 0;
-            double maxsteps = xResolution * yResolution;
-            int percent = 0;
-
-            for (int x = 0; x < xResolution; x++)
-            {
-                for (int y = 0; y < yResolution; y++)
-                {
-                    if (percent < (steps / maxsteps) * 100)
-                    {
-                        percent++;
-                        Console.Clear();
-                        Console.WriteLine("Generating Tileable FBM Simplex Noise.");
-                        Console.WriteLine("{0}%", percent);
-                    }
-                    steps++;
-                    float h = (float)simplexNoise.GetTileableFBM(x, y, 0, 256, 0, 256, xResolution, yResolution, frequency);
-                    if (y < 90)
-                        h = (y / 90f) * h + 1 - (y / 90f);
-
-                    if (y > 90)
-                        h = ((180 - y) / 90f) * h + 1 - ((180 - y) / 90f);
-
-                    SurfaceTexel texel = GetSurfaceTexel(x - 180, y - 90);
-                    SurfaceTexel texel1 = GetSurfaceTexel(x, y - 90);
-                    texel.Height = h;
-                    texel1.Height = h;
-                    SetSurfaceTexel(x - 180, y - 90, texel);
-                    SetSurfaceTexel(x, y - 90, texel1);
-                }
-            }
-        }
-
-        /// <summary>
-        /// This method generates tectonic plates using a randomized flood fill algorithm.
-        /// </summary>
-        public void GenerateTectonicPlates()
-        {
-            tectonicPlates = new List<TectonicPlate>();
-
-            if (tectonicPlatesCount <= 1)
-            {
-                SinglePlatePlanet();
-                return;
-            }
-
-            for (int y = 0; y < 180; y++)
-            {
-                for (int x = 0; x < 360; x++)
-                {
-                    SurfaceTexel texel = new SurfaceTexel();
-                    texel.TectonicPlateID = -1;
-                    texel.Distance = -1;
-                    surface[x, y] = texel;
-                }
-            }
-
-            Random rand = new Random(MathHelper.RandomSeed != null ? (int)MathHelper.RandomSeed : 0);// DateTime.Now.Millisecond);
-            for (int i = 0; i < tectonicPlatesCount; i++)
-            {
-                tectonicPlates.Add(new TectonicPlate(i));
-                int x = rand.Next(0, 360);
-                int y = rand.Next(0, 180);
-
-                SurfaceTexel texel = new SurfaceTexel();
-                texel.TectonicPlateID = i;
-                texel.Distance = 0;
-                SetSurfaceTexel(x, y, texel);
-            }
-
-            int[,] distance = new int[360, 180];
-
-            int emptyTiles = 180 * 360 - this.tectonicPlatesCount;
-            while (emptyTiles > 0)
-            {
-                Console.WriteLine(emptyTiles);
-
-                for (int y = -90; y < 90; y++)
-                {
-                    for (int x = -180; x < 180; x++)
-                    {
-                        List<SurfaceTexel> possiblePlates = new List<SurfaceTexel>();
-                        if (GetSurfaceTexel(x, y).TectonicPlateID != -1)
-                        {
-                            continue;
-                        }
-
-                        possiblePlates.Add(GetSurfaceTexel(x, y - 1));
-                        possiblePlates.Add(GetSurfaceTexel(x, y + 1));
-                        possiblePlates.Add(GetSurfaceTexel(x - 1, y));
-                        possiblePlates.Add(GetSurfaceTexel(x + 1, y));
-
-                        SurfaceTexel texel = new SurfaceTexel();
-
-                        int target = rand.Next(4);
-
-                        texel.TectonicPlateID = possiblePlates[target].TectonicPlateID;
-
-                        SetSurfaceTexel(x, y, texel);
-                        if (texel.TectonicPlateID != -1)
-                            emptyTiles--;
-                    }
-                }
-            }
-        }
 
         /// <summary>
         /// Gets the adjacent move directions (other plates adjacent to the current plate) as RGB values.
@@ -501,6 +220,31 @@ namespace Slartibartfast.Planets
                     surf[x, y] = surface[x, y].Height;
                 }
             }
+
+            return surf;
+        }
+
+        /// <summary>
+        /// Gets the heightmap as a two-dimensional array of floats with values between 0 and 1. Slightly slower than GetHeight.
+        /// </summary>
+        /// <returns></returns>
+        public float[,] GetNormalizedHeight()
+        {
+            float[,] surf = GetHeight();
+
+            float maxValue = surf.GetHighestValue();
+            float minValue = surf.GetLowestValue();
+
+            float range = maxValue - minValue;
+
+            if (range != 0)
+                for (int y = 0; y < 180; y++)
+                {
+                    for (int x = 0; x < 360; x++)
+                    {
+                        surf[x, y] = (surf[x, y] - minValue) / (range);
+                    }
+                }
 
             return surf;
         }
@@ -613,7 +357,390 @@ namespace Slartibartfast.Planets
 
         #endregion Public Methods
 
+        #region Internal Methods
+
+        public Tuple<Texture, Texture, Texture> GenerateTextures(TextureType outputTextures)
+        {
+            Texture color, height, gloss;
+
+            color = outputTextures.Has(TextureType.Color) ? GenerateColorMap() : null;
+            gloss = outputTextures.Has(TextureType.Gloss) ? GenerateGlossMap() : null;
+            height = outputTextures.Has(TextureType.Height) ? GenerateHeightMap() : null;
+
+            return new Tuple<Texture, Texture, Texture>(color, height, gloss);
+        }
+
+        private Texture GenerateHeightMap()
+        {
+            float[,] height = GetNormalizedHeight();
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    if (height[x, y] < this.sealevel)
+                    {
+                        height[x, y] = this.sealevel;
+                    }
+                }
+            }
+
+            height = height.Invert();
+
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    if (y < 90)
+                        height[x, y] = (y / 90f) * height[x, y] + 1 - (y / 90f);
+
+                    if (y > 90)
+                        height[x, y] = ((180 - y) / 90f) * height[x, y] + 1 - ((180 - y) / 90f);
+                }
+            }
+
+            return new Texture(360, 180, ref height);
+        }
+
+        private Texture GenerateGlossMap()
+        {
+            float[,] height = GetNormalizedHeight();
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    if (height[x, y] < this.sealevel)
+                    {
+                        height[x, y] = 0;
+                    }
+                    else
+                        height[x, y] = 1;
+                }
+            }
+
+            return new Texture(360, 180, ref height);
+        }
+
+        private Texture GenerateColorMap()
+        {
+            float[,] height = GetHeight();
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    if (height[x, y] > this.sealevel)
+                    {
+                        height[x, y] = this.sealevel;
+                    }
+                }
+            }
+
+            return new Texture(360, 180, ref height);
+        }
+
+        internal void GenerateVegetation()
+        {
+        }
+
+        #endregion Internal Methods
+
+
+
         #region Private Methods
+
+        /// <summary>
+        /// Raises and lowers the terrain according to the plates
+        /// </summary>
+        /// <param name="limit"></param>
+        private void ApplyPlateTectonics(int limit = 25)
+        {
+            for (int y = -90; y < 90; y++)
+            {
+                for (int x = -180; x < 180; x++)
+                {
+                    SurfaceTexel texel = GetSurfaceTexel(x, y);
+                    Vector2 ownDirection = tectonicPlates[texel.TectonicPlateID].MoveDirection;
+                    Vector2 adjacentDirection = texel.AdjacentDirection;
+                    // if (adjacentDirection.Length() == 0)
+                    //continue;
+
+                    Vector2 cumulatedDirection = ownDirection + adjacentDirection;
+                    float multiplier = cumulatedDirection.Length();
+
+                    if (y < 0)
+                        multiplier = ((y + 90) / 90f) * multiplier + 1 - ((y + 90) / 90f);
+
+                    if (y > 0)
+                        multiplier = ((180 - (y + 90)) / 90f) * multiplier + 1 - ((180 - (y + 90)) / 90f);
+
+                    multiplier--;
+                    multiplier *= 0.05f;
+                    multiplier++;
+                    texel.Height *= multiplier;
+                    SetSurfaceTexel(x, y, texel);
+                }
+            }
+        }
+
+        /// <summary>
+        /// This method extends the borders until either a certain limit is reached or the whole area
+        /// is filled. This is used as a falloff for the plates that work together. The nearer two
+        /// plates are, the more they have impact on each other.
+        /// </summary>
+        /// <param name="limit">
+        /// The limit of the extended border. This means that the extension never excedes over this
+        /// value. The defaulvalue is 15.
+        /// </param>
+        private void ExtendBorders(int limit = 25)
+        {
+            int emptyTiles = 180 * 360;
+            for (int y = -90; y < 90; y++)
+            {
+                for (int x = -180; x < 180; x++)
+                {
+                    SurfaceTexel texel = GetSurfaceTexel(x, y);
+                    if (texel.Distance > 0)
+                        emptyTiles--;
+                }
+            }
+
+            int targetheight = 1;
+            int limitheight = limit;
+            while (emptyTiles > 0)
+            {
+                Console.WriteLine(emptyTiles);
+
+                for (int y = -90; y < 90; y++)
+                {
+                    for (int x = -180; x < 180; x++)
+                    {
+                        SurfaceTexel texel = GetSurfaceTexel(x, y);
+                        int dist = texel.Distance;
+
+                        if (dist > 0)
+                            continue;
+
+                        SurfaceTexel[] dists = new SurfaceTexel[4];
+
+                        dists[0] = GetSurfaceTexel(x - 1, y);
+                        dists[1] = GetSurfaceTexel(x + 1, y);
+                        dists[2] = GetSurfaceTexel(x, y - 1);
+                        dists[3] = GetSurfaceTexel(x, y + 1);
+
+                        List<Vector2> heightreached = new List<Vector2>();
+                        for (int i = 0; i < 4; i++)
+                        {
+                            if (dists[i].Distance == targetheight)
+                            {
+                                heightreached.Add(dists[i].AdjacentDirection);
+                            }
+                        }
+
+                        if (heightreached.Count > 0)
+                        {
+                            if (targetheight == limitheight)
+                                texel.Distance = limitheight;
+                            else
+                                texel.Distance = targetheight + 1;
+                            emptyTiles--;
+
+                            Vector2 adjacentMoveDirection = Vector2.Zero;
+                            for (int i = 0; i < heightreached.Count; i++)
+                            {
+                                adjacentMoveDirection += heightreached[i] / (float)heightreached.Count;
+                            }
+
+                            texel.AdjacentDirection = adjacentMoveDirection * (1f - targetheight / (float)limitheight);
+                        }
+                        SetSurfaceTexel(x, y, texel);
+                    }
+                }
+                targetheight++;
+                if (targetheight > limitheight)
+                    targetheight = limitheight;
+            }
+        }
+
+        /// <summary>
+        /// This method generates a border around the area where two plates meet. This line is always
+        /// 2 units wide. It also sets the adjacent plates.
+        /// </summary>
+        private void GenerateBorders()
+        {
+            for (int y = -90; y < 90; y++)
+            {
+                for (int x = -180; x < 180; x++)
+                {
+                    SurfaceTexel texel = GetSurfaceTexel(x, y);
+                    int plateID = texel.TectonicPlateID;
+
+                    int[] plates = new int[4];
+
+                    plates[0] = GetSurfaceTexel(x - 1, y).TectonicPlateID;
+                    plates[1] = GetSurfaceTexel(x + 1, y).TectonicPlateID;
+                    plates[2] = GetSurfaceTexel(x, y - 1).TectonicPlateID;
+                    plates[3] = GetSurfaceTexel(x, y + 1).TectonicPlateID;
+
+                    texel.Distance = 0;
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (plates[i] != plateID)
+                        {
+                            texel.Distance = 1;
+                            break;
+                        }
+                    }
+
+                    List<Vector2> otherMoveDirections = new List<Vector2>();
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (plates[i] != plateID)
+                        {
+                            otherMoveDirections.Add(tectonicPlates[plates[i]].MoveDirection);
+                        }
+                    }
+
+                    Vector2 adjacentMoveDirection = Vector2.Zero;
+                    for (int i = 0; i < otherMoveDirections.Count; i++)
+                    {
+                        adjacentMoveDirection += otherMoveDirections[i] / (float)otherMoveDirections.Count;
+                    }
+
+                    texel.AdjacentDirection = adjacentMoveDirection;
+
+                    SetSurfaceTexel(x, y, texel);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Generates a terrain by using simplex noise. This is merely the basis for every further
+        /// calculations and shall be used as a noisey nonlinear terrain. The next step will be a
+        /// linear interpolation on both ends of the images to unify this point to a median value.
+        /// </summary>
+        private void GenerateHeightValues()
+        {
+            Simplex simplexNoise = new Simplex(256, 0.1);
+
+            int xResolution = 180;
+            int yResolution = 180;
+
+            int frequency = 128;
+
+            float[,] height = new float[xResolution, yResolution];
+
+            int steps = 0;
+            double maxsteps = xResolution * yResolution;
+            int percent = 0;
+
+            for (int x = 0; x < xResolution; x++)
+            {
+                for (int y = 0; y < yResolution; y++)
+                {
+                    if (percent < (steps / maxsteps) * 100)
+                    {
+                        percent++;
+                        Console.Clear();
+                        Console.WriteLine("Generating Tileable FBM Simplex Noise.");
+                        Console.WriteLine("{0}%", percent);
+                    }
+                    steps++;
+                    float h = (float)simplexNoise.GetTileableFBM(x, y, 0, 256, 0, 256, xResolution, yResolution, frequency);
+
+                    SurfaceTexel texel = GetSurfaceTexel(x - 180, y - 90);
+                    SurfaceTexel texel1 = GetSurfaceTexel(x, y - 90);
+                    texel.Height = h;
+                    texel1.Height = h;
+                    SetSurfaceTexel(x - 180, y - 90, texel);
+                    SetSurfaceTexel(x, y - 90, texel1);
+                }
+            }
+        }
+
+        private void GenerateSurface()
+        {
+            for (int y = -90; y < 90; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    SurfaceTexel texel = GetSurfaceTexel(x, y);
+                    texel.NormalAngle = 1 - y / 90f;
+                    SetSurfaceTexel(x, y, texel);
+                }
+            }
+        }
+
+        /// <summary>
+        /// This method generates tectonic plates using a randomized flood fill algorithm.
+        /// </summary>
+        private void GenerateTectonicPlates()
+        {
+            tectonicPlates = new List<TectonicPlate>();
+
+            if (tectonicPlatesCount <= 1)
+            {
+                SinglePlatePlanet();
+                return;
+            }
+
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    SurfaceTexel texel = new SurfaceTexel();
+                    texel.TectonicPlateID = -1;
+                    texel.Distance = -1;
+                    surface[x, y] = texel;
+                }
+            }
+
+            Random rand = new Random(MathHelper.RandomSeed != null ? (int)MathHelper.RandomSeed : 0);// DateTime.Now.Millisecond);
+            for (int i = 0; i < tectonicPlatesCount; i++)
+            {
+                tectonicPlates.Add(new TectonicPlate(i));
+                int x = rand.Next(0, 360);
+                int y = rand.Next(0, 180);
+
+                SurfaceTexel texel = new SurfaceTexel();
+                texel.TectonicPlateID = i;
+                texel.Distance = 0;
+                SetSurfaceTexel(x, y, texel);
+            }
+
+            int[,] distance = new int[360, 180];
+
+            int emptyTiles = 180 * 360 - this.tectonicPlatesCount;
+            while (emptyTiles > 0)
+            {
+                Console.WriteLine(emptyTiles);
+
+                for (int y = -90; y < 90; y++)
+                {
+                    for (int x = -180; x < 180; x++)
+                    {
+                        List<SurfaceTexel> possiblePlates = new List<SurfaceTexel>();
+                        if (GetSurfaceTexel(x, y).TectonicPlateID != -1)
+                        {
+                            continue;
+                        }
+
+                        possiblePlates.Add(GetSurfaceTexel(x, y - 1));
+                        possiblePlates.Add(GetSurfaceTexel(x, y + 1));
+                        possiblePlates.Add(GetSurfaceTexel(x - 1, y));
+                        possiblePlates.Add(GetSurfaceTexel(x + 1, y));
+
+                        SurfaceTexel texel = new SurfaceTexel();
+
+                        int target = rand.Next(4);
+
+                        texel.TectonicPlateID = possiblePlates[target].TectonicPlateID;
+
+                        SetSurfaceTexel(x, y, texel);
+                        if (texel.TectonicPlateID != -1)
+                            emptyTiles--;
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// This method generates a planet with a single tectonic plate.

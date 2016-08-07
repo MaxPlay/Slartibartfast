@@ -22,6 +22,22 @@
             return value;
         }
 
+        public static float[,] Invert(this float[,] f)
+        {
+            int width = f.GetLength(0);
+            int height = f.GetLength(1);
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    f[x, y] = 1 - f[x, y];
+                }
+            }
+
+            return f;
+        }
+
         public static float GetLowestValue(this float[,] f)
         {
             float value = float.MaxValue;
