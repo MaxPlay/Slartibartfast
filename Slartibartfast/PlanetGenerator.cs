@@ -15,11 +15,6 @@ namespace Slartibartfast
         private PlanetSettings planetSettings;
         private Sun sun;
 
-        public TextureType OutputTextures
-        {
-            get { return outputTextures; }
-        }
-
         #endregion Private Fields
 
         #region Public Constructors
@@ -50,6 +45,11 @@ namespace Slartibartfast
         #endregion Public Constructors
 
         #region Public Properties
+
+        public TextureType OutputTextures
+        {
+            get { return outputTextures; }
+        }
 
         public PlanetSettings PlanetSettings
         {
@@ -86,8 +86,12 @@ namespace Slartibartfast
             Tuple<Texture, Texture, Texture> tex = planet.GenerateTextures(outputTextures);
 
             tex.Item1?.SaveToFile("color.png");
-            tex.Item2?.SaveToFile("gloss.png");
-            tex.Item3?.SaveToFile("height.png");
+            tex.Item2?.SaveToFile("height.png");
+            tex.Item3?.SaveToFile("gloss.png");
+
+            Color[,] plates = planet.GetWindMoveDirection();
+            Texture t = new Texture(360, 180, ref plates);
+            t.SaveToFile("wind.png");
         }
 
         #endregion Public Methods

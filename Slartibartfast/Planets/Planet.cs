@@ -5,6 +5,7 @@ using Slartibartfast.Textures;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 
 namespace Slartibartfast.Planets
 {
@@ -39,8 +40,6 @@ namespace Slartibartfast.Planets
 
         #endregion Public Fields
 
-
-
         #region Private Fields
 
         private int age;
@@ -56,20 +55,13 @@ namespace Slartibartfast.Planets
 
         private float radius;
 
+        private float sealevel;
         private SurfaceTexel[,] surface;
 
         private List<TectonicPlate> tectonicPlates;
 
         private int tectonicPlatesCount;
-
-        private float sealevel;
-
-        public float Sealevel
-        {
-            get { return sealevel; }
-            set { sealevel = value; }
-        }
-
+        private List<WindPoint> windPoints;
 
         #endregion Private Fields
 
@@ -92,11 +84,10 @@ namespace Slartibartfast.Planets
             ExtendBorders();
             GenerateHeightValues();
             ApplyPlateTectonics();
+            GenerateWind();
         }
 
         #endregion Public Constructors
-
-
 
         #region Public Properties
 
@@ -141,6 +132,12 @@ namespace Slartibartfast.Planets
             set { radius = value; }
         }
 
+        public float Sealevel
+        {
+            get { return sealevel; }
+            set { sealevel = value; }
+        }
+
         public int TectonicPlatesCount
         {
             get { return tectonicPlatesCount; }
@@ -149,9 +146,27 @@ namespace Slartibartfast.Planets
 
         #endregion Public Properties
 
-
-
         #region Public Methods
+
+        /// <summary>
+        /// Tuple returns three textures, defaulting to null if not set.
+        ///
+        /// Item1 = Color
+        /// Item2 = Height
+        /// Item3 = Gloss
+        /// </summary>
+        /// <param name="outputTextures"></param>
+        /// <returns></returns>
+        public Tuple<Texture, Texture, Texture> GenerateTextures(TextureType outputTextures)
+        {
+            Texture color, height, gloss;
+
+            color = outputTextures.Has(TextureType.Color) ? GenerateColorMap() : null;
+            gloss = outputTextures.Has(TextureType.Gloss) ? GenerateGlossMap() : null;
+            height = outputTextures.Has(TextureType.Height) ? GenerateHeightMap() : null;
+
+            return new Tuple<Texture, Texture, Texture>(color, height, gloss);
+        }
 
         /// <summary>
         /// Gets the adjacent move directions (other plates adjacent to the current plate) as RGB values.
@@ -311,6 +326,26 @@ namespace Slartibartfast.Planets
             return surf;
         }
 
+        public Color[,] GetWindMoveDirection()
+        {
+            Color[,] surf = new Color[360, 180];
+
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    Vector2 windDirection = surface[x, y].WindDirection;
+                    if (windDirection.X != 0 && windDirection.Y != 0)
+                        windDirection.Normalize();
+                    int r = (int)((windDirection.X * 128f) + 128);
+                    int g = (int)((windDirection.Y * 128f) + 128);
+                    surf[x, y] = Color.FromArgb(255, r == 256 ? 255 : r, g == 256 ? 255 : g, 255); //Bugfix, don't think about it.
+                }
+            }
+
+            return surf;
+        }
+
         /// <summary>
         /// Sets a spherical surface texel. This means that the range to get from is from -180 to 180
         /// on the x-axis and -90 to 90 on the y-axis. Every value exceeding this limit will be
@@ -359,91 +394,11 @@ namespace Slartibartfast.Planets
 
         #region Internal Methods
 
-        public Tuple<Texture, Texture, Texture> GenerateTextures(TextureType outputTextures)
-        {
-            Texture color, height, gloss;
-
-            color = outputTextures.Has(TextureType.Color) ? GenerateColorMap() : null;
-            gloss = outputTextures.Has(TextureType.Gloss) ? GenerateGlossMap() : null;
-            height = outputTextures.Has(TextureType.Height) ? GenerateHeightMap() : null;
-
-            return new Tuple<Texture, Texture, Texture>(color, height, gloss);
-        }
-
-        private Texture GenerateHeightMap()
-        {
-            float[,] height = GetNormalizedHeight();
-            for (int y = 0; y < 180; y++)
-            {
-                for (int x = 0; x < 360; x++)
-                {
-                    if (height[x, y] < this.sealevel)
-                    {
-                        height[x, y] = this.sealevel;
-                    }
-                }
-            }
-
-            height = height.Invert();
-
-            for (int y = 0; y < 180; y++)
-            {
-                for (int x = 0; x < 360; x++)
-                {
-                    if (y < 90)
-                        height[x, y] = (y / 90f) * height[x, y] + 1 - (y / 90f);
-
-                    if (y > 90)
-                        height[x, y] = ((180 - y) / 90f) * height[x, y] + 1 - ((180 - y) / 90f);
-                }
-            }
-
-            return new Texture(360, 180, ref height);
-        }
-
-        private Texture GenerateGlossMap()
-        {
-            float[,] height = GetNormalizedHeight();
-            for (int y = 0; y < 180; y++)
-            {
-                for (int x = 0; x < 360; x++)
-                {
-                    if (height[x, y] < this.sealevel)
-                    {
-                        height[x, y] = 0;
-                    }
-                    else
-                        height[x, y] = 1;
-                }
-            }
-
-            return new Texture(360, 180, ref height);
-        }
-
-        private Texture GenerateColorMap()
-        {
-            float[,] height = GetHeight();
-            for (int y = 0; y < 180; y++)
-            {
-                for (int x = 0; x < 360; x++)
-                {
-                    if (height[x, y] > this.sealevel)
-                    {
-                        height[x, y] = this.sealevel;
-                    }
-                }
-            }
-
-            return new Texture(360, 180, ref height);
-        }
-
         internal void GenerateVegetation()
         {
         }
 
         #endregion Internal Methods
-
-
 
         #region Private Methods
 
@@ -560,6 +515,28 @@ namespace Slartibartfast.Planets
             }
         }
 
+        private Vector2 ExtractWindLocation(int x, WindPoint wp)
+        {
+            float xDistance = wp.Location.X - x;
+            float xCorrection = 0;
+            while (System.Math.Abs(xDistance) > 180)
+            {
+                if (xDistance > 0)
+                {
+                    xDistance -= 180;
+                    xCorrection -= 180;
+                }
+                else
+                {
+                    xDistance += 180;
+                    xCorrection += 180;
+                }
+            }
+
+            Vector2 location = new Vector2(wp.Location.X + xCorrection, wp.Location.Y);
+            return location;
+        }
+
         /// <summary>
         /// This method generates a border around the area where two plates meet. This line is always
         /// 2 units wide. It also sets the adjacent plates.
@@ -612,6 +589,73 @@ namespace Slartibartfast.Planets
             }
         }
 
+        private Texture GenerateColorMap()
+        {
+            float[,] height = GetHeight();
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    if (height[x, y] > this.sealevel)
+                    {
+                        height[x, y] = this.sealevel;
+                    }
+                }
+            }
+
+            return new Texture(360, 180, ref height);
+        }
+
+        private Texture GenerateGlossMap()
+        {
+            float[,] height = GetNormalizedHeight();
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    if (height[x, y] < this.sealevel || surface[x, y].Moisture >= 0.95f)
+                    {
+                        height[x, y] = 0;
+                    }
+                    else
+                        height[x, y] = 1;
+                }
+            }
+
+            return new Texture(360, 180, ref height);
+        }
+
+        private Texture GenerateHeightMap()
+        {
+            float[,] height = GetNormalizedHeight();
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    if (height[x, y] < this.sealevel)
+                    {
+                        height[x, y] = this.sealevel;
+                    }
+                }
+            }
+
+            height = height.Invert();
+
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    if (y < 90)
+                        height[x, y] = (y / 90f) * height[x, y] + 1 - (y / 90f);
+
+                    if (y > 90)
+                        height[x, y] = ((180 - y) / 90f) * height[x, y] + 1 - ((180 - y) / 90f);
+                }
+            }
+
+            return new Texture(360, 180, ref height);
+        }
+
         /// <summary>
         /// Generates a terrain by using simplex noise. This is merely the basis for every further
         /// calculations and shall be used as a noisey nonlinear terrain. The next step will be a
@@ -648,8 +692,8 @@ namespace Slartibartfast.Planets
 
                     SurfaceTexel texel = GetSurfaceTexel(x - 180, y - 90);
                     SurfaceTexel texel1 = GetSurfaceTexel(x, y - 90);
-                    texel.Height = h;
-                    texel1.Height = h;
+                    texel.Height = h;//+ tectonicPlates[texel.TectonicPlateID].HeightModifier;
+                    texel1.Height = h;// + tectonicPlates[texel1.TectonicPlateID].HeightModifier;
                     SetSurfaceTexel(x - 180, y - 90, texel);
                     SetSurfaceTexel(x, y - 90, texel1);
                 }
@@ -740,6 +784,84 @@ namespace Slartibartfast.Planets
                     }
                 }
             }
+        }
+
+        private void GenerateWind()
+        {
+            Random rand = new Random(MathHelper.RandomSeed != null ? (int)MathHelper.RandomSeed : 0);
+            int WindPointCount = rand.Range(5, 20);
+            windPoints = new List<WindPoint>();
+            for (int i = 0; i < WindPointCount; i++)
+            {
+                WindPoint wp = new WindPoint();
+                wp.Distance = (float)(rand.Range(45, 135));
+                wp.Rotation = (float)(rand.NextDouble() * MathHelper.TWO_PI * 2f - MathHelper.TWO_PI);
+                wp.Location = new Vector2(rand.Range(0, 360), rand.Range(0, 180));
+                windPoints.Add(wp);
+            }
+
+            for (int y = -90; y < 90; y++)
+            {
+                for (int x = -180; x < 180; x++)
+                {
+                    SurfaceTexel texel = GetSurfaceTexel(x, y);
+
+                    //Let's keep every point out that is within the eye of the storm. (Or to be more precise at the same location as a WindPoint)
+                    if (windPoints.Count(wp => wp.Location == new Vector2(x, y)) > 0)
+                        continue;
+
+                    List<WindPoint> possiblePoints = GetPossibleWindSources(x, y);
+                    texel.WindDirection = GenerateWindDirection(x, y, possiblePoints);
+
+                    SetSurfaceTexel(x, y, texel);
+                }
+            }
+        }
+
+        private Vector2 GenerateWindDirection(int x, int y, List<WindPoint> possiblePoints)
+        {
+            Vector2 windDirection = Vector2.Zero;
+            x += 180;
+            y += 90;
+            for (int i = 0; i < possiblePoints.Count; i++)
+            {
+                Vector2 location = ExtractWindLocation(x, possiblePoints[i]);
+
+                float s = (float)System.Math.Sin(windPoints[i].Rotation);
+                float c = (float)System.Math.Cos(windPoints[i].Rotation);
+
+                // translate point back to origin:
+                float WindTargetX = location.X - x;
+                float WindTargetY = location.Y - y;
+
+                // rotate point
+                float xnew = WindTargetX * c - WindTargetY * s;
+                float ynew = WindTargetX * s + WindTargetY * c;
+
+                float distanceModifier = 1f - Vector2.Distance(location, new Vector2(x, y)) / possiblePoints[i].Distance;
+
+                Vector2 direction = new Vector2(xnew, ynew) * distanceModifier * distanceModifier;
+
+                windDirection += direction;
+            }
+
+            return windDirection;
+        }
+
+        private List<WindPoint> GetPossibleWindSources(int x, int y)
+        {
+            List<WindPoint> possiblePoints = new List<WindPoint>();
+            x += 180;
+            y += 90;
+            for (int i = 0; i < windPoints.Count; i++)
+            {
+                Vector2 location = ExtractWindLocation(x, windPoints[i]);
+                float distance = Vector2.Distance(location, new Vector2(x, y));
+                if (distance <= windPoints[i].Distance)
+                    possiblePoints.Add(windPoints[i]);
+            }
+
+            return possiblePoints;
         }
 
         /// <summary>

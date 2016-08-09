@@ -10,6 +10,7 @@ namespace Slartibartfast.Planets
         #region Private Fields
 
         private Color debugColor;
+        private float heightModifier;
         private int id;
 
         private Vector2 moveDirection;
@@ -37,6 +38,12 @@ namespace Slartibartfast.Planets
             set { debugColor = value; }
         }
 
+        public float HeightModifier
+        {
+            get { return heightModifier; }
+            set { heightModifier = value; }
+        }
+
         public int ID
         {
             get { return id; }
@@ -48,15 +55,6 @@ namespace Slartibartfast.Planets
             get { return moveDirection; }
             set { moveDirection = value; }
         }
-
-        private float heightModifier;
-
-        public float HeightModifier
-        {
-            get { return heightModifier; }
-            set { heightModifier = value; }
-        }
-
 
         #endregion Public Properties
     }

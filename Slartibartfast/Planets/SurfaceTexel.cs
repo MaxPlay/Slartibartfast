@@ -7,9 +7,16 @@ namespace Slartibartfast.Planets
         #region Private Fields
 
         private Vector2 adjacentDirection;
+        private Biome biome;
         private int distance;
         private float height;
+        private float moisture;
+        private float normalAngle;
         private int tectonicPlateID;
+
+        private float temperature;
+
+        private Vector2 windDirection;
 
         #endregion Private Fields
 
@@ -19,6 +26,12 @@ namespace Slartibartfast.Planets
         {
             get { return adjacentDirection; }
             set { adjacentDirection = value; }
+        }
+
+        public Biome Biome
+        {
+            get { return biome; }
+            set { biome = value; }
         }
 
         public int Distance
@@ -33,33 +46,6 @@ namespace Slartibartfast.Planets
             set { height = value; }
         }
 
-        public int TectonicPlateID
-        {
-            get { return tectonicPlateID; }
-            set { tectonicPlateID = value; }
-        }
-
-        private Biome biome;
-
-        public Biome Biome
-        {
-            get { return biome; }
-            set { biome = value; }
-        }
-
-        private float temperature;
-
-        /// <summary>
-        /// The temperature is measured in Celsius. However, every value is possible, though the regular temperature is somewhere between -40 and +40. Every value under 0 will result in ice.
-        /// </summary>
-        public float Temperature
-        {
-            get { return temperature; }
-            set { temperature = value; }
-        }
-
-        private float moisture;
-
         /// <summary>
         /// The moisture of the Texel. 0 means completly dry, while 1 means completly wet.
         /// </summary>
@@ -68,8 +54,6 @@ namespace Slartibartfast.Planets
             get { return moisture; }
             set { moisture = value; }
         }
-
-        private float normalAngle;
 
         /// <summary>
         /// This is the angle of the texel relative to the equator.
@@ -80,7 +64,20 @@ namespace Slartibartfast.Planets
             set { normalAngle = value; }
         }
 
-        private Vector2 windDirection;
+        public int TectonicPlateID
+        {
+            get { return tectonicPlateID; }
+            set { tectonicPlateID = value; }
+        }
+
+        /// <summary>
+        /// The temperature is measured in Celsius. However, every value is possible, though the regular temperature is somewhere between -40 and +40. Every value under 0 will result in ice.
+        /// </summary>
+        public float Temperature
+        {
+            get { return temperature; }
+            set { temperature = value; }
+        }
 
         public Vector2 WindDirection
         {

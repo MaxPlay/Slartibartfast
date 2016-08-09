@@ -1,12 +1,10 @@
-﻿#region License
-/***
+﻿/***
 * Extension created by Hugo Bonacci. http://hugoware.net/
 * This work is licensed under a Creative Commons Attribution 3.0 Unported License.
 *
 * Source:
 * http://hugoware.net/blog/enumeration-extensions-2-0
 ***/
-#endregion License
 
 using System;
 

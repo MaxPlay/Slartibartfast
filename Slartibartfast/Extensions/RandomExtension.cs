@@ -15,7 +15,7 @@ namespace Slartibartfast.Extensions
 
         public static int Range(this Random r, int rMin, int rMax)
         {
-            return rMin + r.Next() * (rMax - rMin);
+            return (int)(rMin + r.NextDouble() * (rMax - rMin));
         }
 
         public static double Range(this Random r, double rMin, double rMax)

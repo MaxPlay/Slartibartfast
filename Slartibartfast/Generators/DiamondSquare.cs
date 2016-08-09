@@ -28,7 +28,7 @@ namespace Slartibartfast.Generators
         ///
         /// This generates random noise using the diamond square algorithm.
         /// </summary>
-        /// <param name="size">        
+        /// <param name="size">
         /// The size of the resulting array. Needs to be a Power of 2.
         /// </param>
         /// <param name="minElevation">The min elevation of the terrain.</param>
