@@ -1,6 +1,5 @@
 ﻿using Slartibartfast.Extensions;
-using System.Drawing;
-using System.Drawing.Imaging;
+using Slartibartfast.Math;
 using System.IO;
 
 namespace Slartibartfast.Textures
@@ -45,7 +44,7 @@ namespace Slartibartfast.Textures
             {
                 for (int x = 0; x < width; x++)
                 {
-                    color[y * width + x] = ColorExtension.Lerp(System.Drawing.Color.Black, System.Drawing.Color.White, (highestValue - lowestValue) != 0 ? (array[x, y] - lowestValue) / (highestValue - lowestValue) : 0);
+                    color[y * width + x] = Math.Color.Lerp(Math.Color.Black, Math.Color.White, (highestValue - lowestValue) != 0 ? (array[x, y] - lowestValue) / (highestValue - lowestValue) : 0);
                 }
             }
         }
@@ -70,6 +69,7 @@ namespace Slartibartfast.Textures
 
         #region Public Methods
 
+        /*
         public void SaveToFile(string filename, bool overwrite = true)
         {
             if (File.Exists(filename))
@@ -78,6 +78,7 @@ namespace Slartibartfast.Textures
 
             ToBitmap(this.color, width, height).Save(filename, ImageFormat.Png);
         }
+        */
 
         public void SetColorData(ref Color[,] array)
         {
@@ -103,11 +104,12 @@ namespace Slartibartfast.Textures
             {
                 for (int x = 0; x < width; x++)
                 {
-                    color[y * width + x] = ColorExtension.Lerp(System.Drawing.Color.Black, System.Drawing.Color.White, (array[x, y] - lowestValue) / (highestValue - lowestValue));
+                    color[y * width + x] = Math.Color.Lerp(Math.Color.Black, Math.Color.White, (array[x, y] - lowestValue) / (highestValue - lowestValue));
                 }
             }
         }
 
+        /*
         /// <summary>
         /// Taken from one of my own projects. This is originally coming from: http://stackoverflow.com/questions/13511661/create-bitmap-from-double-two-dimentional-array
         /// </summary>
@@ -115,7 +117,7 @@ namespace Slartibartfast.Textures
         /// <param name="width">   The width of the array.</param>
         /// <param name="height">  The height of the array.</param>
         /// <returns></returns>
-        private unsafe System.Drawing.Bitmap ToBitmap(Color[] rawImage, int width, int height)
+        private unsafe Bitmap ToBitmap(Color[] rawImage, int width, int height)
         {
             System.Drawing.Bitmap Image = new System.Drawing.Bitmap(width, height);
             System.Drawing.Imaging.BitmapData bitmapData = Image.LockBits(
@@ -184,8 +186,9 @@ namespace Slartibartfast.Textures
             }
 
             #endregion Public Methods
+            
         }
-
+        */
         #endregion Private Structs
     }
 }

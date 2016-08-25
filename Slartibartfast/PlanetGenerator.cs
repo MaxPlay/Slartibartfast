@@ -3,7 +3,6 @@ using Slartibartfast.Math;
 using Slartibartfast.Planets;
 using Slartibartfast.Textures;
 using System;
-using System.Drawing;
 
 namespace Slartibartfast
 {
@@ -29,14 +28,14 @@ namespace Slartibartfast
 
             //Defaults
             colors = new BiomeColors();
-            colors[Biome.Desert] = Color.Beige;
-            colors[Biome.Forest] = Color.ForestGreen;
-            colors[Biome.Grass] = Color.LawnGreen;
-            colors[Biome.Plains] = Color.SandyBrown;
-            colors[Biome.Ice] = Color.GhostWhite;
-            colors[Biome.Mountain] = Color.LightGray;
-            colors[Biome.Ocean] = Color.DarkBlue;
-            colors[Biome.Rainforest] = Color.DarkSeaGreen;
+            colors[Biome.Desert] = new Color(238, 237, 181);
+            colors[Biome.Forest] = new Color(23, 164, 27);
+            colors[Biome.Grass] = new Color(117, 236, 120);
+            colors[Biome.Plains] = new Color(230, 233, 167);
+            colors[Biome.Ice] = new Color(202, 228, 255);
+            colors[Biome.Mountain] = new Color(166, 172, 153);
+            colors[Biome.Ocean] = new Color(18, 27, 101);
+            colors[Biome.Rainforest] = new Color(36, 92, 27);
 
             sun = Sun.GetSol();
             planetSettings = PlanetSettings.Earth();
@@ -112,11 +111,11 @@ namespace Slartibartfast
             outputTextures = outputTextures.Include(TextureType.Gloss);
             outputTextures = outputTextures.Include(TextureType.Height);
             outputTextures = outputTextures.Include(TextureType.Color);
-            Tuple<Texture, Texture, Texture> tex = planet.GenerateTextures(outputTextures);
+            TextureSet tex = planet.GenerateTextures(outputTextures);
 
-            colorTex = tex.Item1;
-            heightTex = tex.Item2;
-            glossTex = tex.Item3;
+            colorTex = tex.ColorTexture;
+            heightTex = tex.HeightTexture;
+            glossTex = tex.GlossTexture;
             /*
             tex.Item1?.SaveToFile("color.png");
             tex.Item2?.SaveToFile("height.png");
@@ -127,6 +126,7 @@ namespace Slartibartfast
             t.SaveToFile("wind.png");*/
         }
 
+        /*
         /// <summary>
         /// Saves textures if available.
         /// </summary>
@@ -136,6 +136,7 @@ namespace Slartibartfast
             heightTex?.SaveToFile("height.png");
             glossTex?.SaveToFile("gloss.png");
         }
+        */
 
         #endregion Public Methods
     }

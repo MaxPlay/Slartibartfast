@@ -1,7 +1,6 @@
 ﻿using Slartibartfast.Extensions;
 using Slartibartfast.Math;
 using System;
-using System.Drawing;
 
 namespace Slartibartfast.Planets
 {

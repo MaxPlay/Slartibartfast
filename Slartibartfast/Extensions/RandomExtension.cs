@@ -1,6 +1,5 @@
 ﻿using Slartibartfast.Math;
 using System;
-using System.Drawing;
 
 namespace Slartibartfast.Extensions
 {
@@ -10,7 +9,7 @@ namespace Slartibartfast.Extensions
 
         public static Color Color(this Random r)
         {
-            return System.Drawing.Color.FromArgb(255, r.Next(0, 256), r.Next(0, 256), r.Next(0, 256));
+            return new Color(r.Next(0, 256), r.Next(0, 256), r.Next(0, 256), 255);
         }
 
         public static int Range(this Random r, int rMin, int rMax)

@@ -4,7 +4,6 @@ using Slartibartfast.Math;
 using Slartibartfast.Textures;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 
 namespace Slartibartfast.Planets
@@ -166,7 +165,7 @@ namespace Slartibartfast.Planets
         /// </summary>
         /// <param name="outputTextures"></param>
         /// <returns></returns>
-        public Tuple<Texture, Texture, Texture> GenerateTextures(TextureType outputTextures)
+        public TextureSet GenerateTextures(TextureType outputTextures)
         {
             Texture color, height, gloss;
 
@@ -174,7 +173,7 @@ namespace Slartibartfast.Planets
             gloss = outputTextures.Has(TextureType.Gloss) ? GenerateGlossMap() : null;
             height = outputTextures.Has(TextureType.Height) ? GenerateHeightMap() : null;
 
-            return new Tuple<Texture, Texture, Texture>(color, height, gloss);
+            return new TextureSet(color, height, gloss);
         }
 
         /// <summary>
@@ -191,7 +190,7 @@ namespace Slartibartfast.Planets
                 {
                     int r = (int)((surface[x, y].AdjacentDirection.X * 128f) + 128);
                     int g = (int)((surface[x, y].AdjacentDirection.Y * 128f) + 128);
-                    surf[x, y] = Color.FromArgb(255, r, g, 255);
+                    surf[x, y] = new Color(255, r, g, 255);
                 }
             }
 
@@ -223,7 +222,7 @@ namespace Slartibartfast.Planets
                 for (int x = 0; x < 360; x++)
                 {
                     int col = max == 0 ? 0 : (int)((surface[x, y].Distance / max) * 255);
-                    surf[x, y] = Color.FromArgb(255, col, col, col);
+                    surf[x, y] = new Color(255, col, col, col);
                 }
             }
 
@@ -348,7 +347,7 @@ namespace Slartibartfast.Planets
                         windDirection.Normalize();
                     int r = (int)((windDirection.X * 128f) + 128);
                     int g = (int)((windDirection.Y * 128f) + 128);
-                    surf[x, y] = Color.FromArgb(255, r == 256 ? 255 : r, g == 256 ? 255 : g, 255); //Bugfix, don't think about it.
+                    surf[x, y] = new Color(255, r == 256 ? 255 : r, g == 256 ? 255 : g, 255); //Bugfix, don't think about it.
                 }
             }
 
@@ -453,7 +452,7 @@ namespace Slartibartfast.Planets
                             finalColorG += (int)(colors[texel.Biome].G / ((count > 0) ? 2 : 1));
                             finalColorB += (int)(colors[texel.Biome].B / ((count > 0) ? 2 : 1));
 
-                            texel.GeneratedColors = Color.FromArgb(finalColorR, finalColorG, finalColorB);
+                            texel.GeneratedColors = new Color(finalColorR, finalColorG, finalColorB);
                             break;
                     }
                     SetSurfaceTexel(x, y, texel);

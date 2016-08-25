@@ -23,7 +23,6 @@ Removed Methods: Transform, TransformNormal, Barycentric, Hermite, CatmullRom
 
 using Slartibartfast.Extensions;
 using System;
-using System.Drawing;
 using System.Globalization;
 
 namespace Slartibartfast.Math
@@ -54,7 +53,7 @@ namespace Slartibartfast.Math
             this.Y = y;
         }
 
-        public Vector2(PointF value)
+        public Vector2(Point value)
         {
             this.X = value.X;
             this.Y = value.Y;
