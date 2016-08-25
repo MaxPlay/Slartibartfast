@@ -762,7 +762,7 @@ namespace Slartibartfast.Planets
             {
                 for (int x = 0; x < 360; x++)
                 {
-                    heightOut[x, y] = heightIn[x >= 180 ? x - 180 : x + 180, y >= 90 ? y - 90 : y + 90];
+                    heightOut[x, y] = heightIn[x, y >= 90 ? y - 90 : y + 90];
                 }
             }
             return new Texture(360, 180, ref heightOut);
@@ -843,7 +843,8 @@ namespace Slartibartfast.Planets
             {
                 for (int x = 0; x < 360; x++)
                 {
-                    heightOut[x, y] = heightIn[x >= 180 ? x - 180 : x + 180, y >= 90 ? y - 90 : y + 90];
+                    //heightOut[x, y] = heightIn[x >= 180 ? x - 180 : x + 180, y >= 90 ? y - 90 : y + 90];
+                    heightOut[x, y] = heightIn[x, y >= 90 ? y - 90 : y + 90];
 
                     if (y < 90)
                         heightOut[x, y] = (y / 90f) * heightOut[x, y] + 1 - (y / 90f);
