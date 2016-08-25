@@ -42,6 +42,11 @@ namespace Slartibartfast.Planets
 
         #region Private Fields
 
+        /// <summary>
+        /// The count of all the texels of the surface. This is a const field, because the value does never change and saves calculationtime.
+        /// </summary>
+        private const int TEXEL_COUNT = 64800;
+
         private int age;
 
         private Atmosphere atmosphere;
@@ -67,7 +72,7 @@ namespace Slartibartfast.Planets
 
         #region Public Constructors
 
-        public Planet(PlanetSettings settings)
+        public Planet(PlanetSettings settings, Sun sun)
         {
             this.age = settings.Age;
             this.atmosphere = settings.Atmosphere;
@@ -85,6 +90,10 @@ namespace Slartibartfast.Planets
             GenerateHeightValues();
             ApplyPlateTectonics();
             GenerateWind();
+            GenerateHeat(sun);
+            GenerateMoisture(sun);
+            GenerateOcean(sun);
+            GenerateBiomes();
         }
 
         #endregion Public Constructors
@@ -394,8 +403,62 @@ namespace Slartibartfast.Planets
 
         #region Internal Methods
 
-        internal void GenerateVegetation()
+        internal void GenerateVegetation(BiomeColors colors)
         {
+            for (int y = -90; y < 90; y++)
+            {
+                for (int x = -180; x < 180; x++)
+                {
+                    SurfaceTexel texel = GetSurfaceTexel(x, y);
+                    switch (texel.Biome)
+                    {
+                        case Biome.Ocean:
+                            texel.GeneratedColors = colors[Biome.Ocean];
+                            break;
+
+                        case Biome.Grass:
+                        case Biome.Mountain:
+                        case Biome.Desert:
+                        case Biome.Forest:
+                        case Biome.Rainforest:
+                        case Biome.Plains:
+                        case Biome.Ice:
+                            int finalColorR = 0, finalColorG = 0, finalColorB = 0;
+                            int count = 0;
+                            for (int y2 = -3; y2 < 3; y2++)
+                            {
+                                for (int x2 = -3; x2 < 3; x2++)
+                                {
+                                    if (x == 0 && y == 0)
+                                        continue;
+                                    SurfaceTexel nextTexel = GetSurfaceTexel(x + x, y + y);
+                                    if (nextTexel.Biome == Biome.Ocean)
+                                        continue;
+
+                                    Color c = colors[nextTexel.Biome];
+                                    finalColorB += c.B;
+                                    finalColorG += c.G;
+                                    finalColorR += c.R;
+                                    count++;
+                                }
+                            }
+                            if (count > 0)
+                            {
+                                finalColorR /= count * 2;
+                                finalColorG /= count * 2;
+                                finalColorB /= count * 2;
+                            }
+
+                            finalColorR += (int)(colors[texel.Biome].R / ((count > 0) ? 2 : 1));
+                            finalColorG += (int)(colors[texel.Biome].G / ((count > 0) ? 2 : 1));
+                            finalColorB += (int)(colors[texel.Biome].B / ((count > 0) ? 2 : 1));
+
+                            texel.GeneratedColors = Color.FromArgb(finalColorR, finalColorG, finalColorB);
+                            break;
+                    }
+                    SetSurfaceTexel(x, y, texel);
+                }
+            }
         }
 
         #endregion Internal Methods
@@ -538,6 +601,78 @@ namespace Slartibartfast.Planets
         }
 
         /// <summary>
+        /// This method is made just to make the result look nice. This is not based on real facts, but on guesses.
+        /// </summary>
+        private void GenerateBiomes()
+        {
+            Random rand = new Random(MathHelper.RandomSeed != null ? (int)MathHelper.RandomSeed : 0);
+
+            float[,] height = GetNormalizedHeight();
+
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    SurfaceTexel texel = GetSurfaceTexel(x, y);
+
+                    if (height[x, y] < sealevel)
+                        texel.Biome = Biome.Ocean;
+                    else
+                    {
+                        if (texel.Moisture < 0.1f)
+                            texel.Biome = texel.Temperature > 10f ? Biome.Desert : Biome.Ice;
+                        else if (texel.Moisture < 0.6f)
+                            texel.Biome = texel.Temperature > 20f ? Biome.Plains : Biome.Grass;
+                        else
+                            texel.Biome = texel.Temperature > 20f ? Biome.Rainforest : Biome.Forest;
+
+                        if (texel.Temperature < 0)
+                            texel.Biome = Biome.Ice;
+
+                        if (height[x, y] > 0.9f)
+                            texel.Biome = Biome.Mountain;
+                    }
+
+                    SetSurfaceTexel(x, y, texel);
+                }
+            }
+
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    SurfaceTexel texel = GetSurfaceTexel(x, y);
+
+                    if (texel.Biome == Biome.Ocean)
+                        continue;
+
+                    int count = 0;
+                    for (int y2 = -3; y2 < 3; y2++)
+                    {
+                        for (int x2 = -3; x2 < 3; x2++)
+                        {
+                            if (x == 0 && y == 0)
+                                continue;
+                            SurfaceTexel nextTexel = GetSurfaceTexel(x + x, y + y);
+                            if (nextTexel.Biome == Biome.Ocean || nextTexel.Biome == texel.Biome)
+                                count++;
+                        }
+                    }
+
+                    if (count < 20)
+                    {
+                        int _x = rand.Next(-1, 2);
+                        int _y = rand.Next(-1, 2);
+                        SurfaceTexel adjTexel = GetSurfaceTexel(x + _x, y + _y);
+                        if (adjTexel.Biome != Biome.Ocean)
+                            texel.Biome = adjTexel.Biome;
+                    }
+                    SetSurfaceTexel(x, y, texel);
+                }
+            }
+        }
+
+        /// <summary>
         /// This method generates a border around the area where two plates meet. This line is always
         /// 2 units wide. It also sets the adjacent plates.
         /// </summary>
@@ -591,56 +726,107 @@ namespace Slartibartfast.Planets
 
         private Texture GenerateColorMap()
         {
-            float[,] height = GetHeight();
+            Color[,] color = new Color[360, 180];
             for (int y = 0; y < 180; y++)
             {
                 for (int x = 0; x < 360; x++)
                 {
-                    if (height[x, y] > this.sealevel)
-                    {
-                        height[x, y] = this.sealevel;
-                    }
+                    color[x, y] = surface[x, y].GeneratedColors;
                 }
             }
 
-            return new Texture(360, 180, ref height);
+            return new Texture(360, 180, ref color);
         }
 
         private Texture GenerateGlossMap()
         {
-            float[,] height = GetNormalizedHeight();
+            float[,] heightIn = GetNormalizedHeight();
+            float[,] heightOut = new float[360, 180];
             for (int y = 0; y < 180; y++)
             {
                 for (int x = 0; x < 360; x++)
                 {
-                    if (height[x, y] < this.sealevel || surface[x, y].Moisture >= 0.95f)
+                    if (heightIn[x, y] < this.sealevel)
                     {
-                        height[x, y] = 0;
+                        heightIn[x, y] = 0;
                     }
                     else
-                        height[x, y] = 1;
+                    {
+                        if (surface[x, y].Moisture >= 0.95f)
+                            heightIn[x, y] = 0.2f;
+                        else
+                            heightIn[x, y] = 1;
+                    }
                 }
             }
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    heightOut[x, y] = heightIn[x >= 180 ? x - 180 : x + 180, y >= 90 ? y - 90 : y + 90];
+                }
+            }
+            return new Texture(360, 180, ref heightOut);
+        }
 
-            return new Texture(360, 180, ref height);
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sun"></param>
+        private void GenerateHeat(Sun sun)
+        {
+            Random rand = new Random(MathHelper.RandomSeed == null ? 0 : (int)MathHelper.RandomSeed);
+            for (int y = -90; y < 90; y++)
+            {
+                for (int x = -180; x < 180; x++)
+                {
+                    SurfaceTexel texel = GetSurfaceTexel(x, y);
+                    float pressure = (float)(atmosphere.PressureAtSealevel - System.Math.Exp(-atmosphere.ScaleHeight * texel.Height));
+                    float virtualDensity = pressure + (0.5f - texel.NormalAngle) * pressure;
+
+                    //This is cheating. What I do here is the following: As long as I stay within the habitable zone, my temperature stays within a range of 15-25 °C, this makes sure that the planet can keep things alive.
+                    MinMax<float> habitableZone = sun.GetHabitableZone();
+
+                    float temperature = 0;
+                    if (habitableZone.Max > this.distanceToSun && habitableZone.Min < this.distanceToSun)
+                    {
+                        float habitableZoneLocation = (DistanceToSun - habitableZone.Min) / (habitableZone.Max - habitableZone.Min);
+                        temperature = 15 + 10 * habitableZoneLocation;
+                    }
+                    else if (habitableZone.Max <= this.distanceToSun)
+                    {
+                        float distance = habitableZone.Max - this.distanceToSun;
+                        temperature = 30 * distance;
+                    }
+                    else
+                    {
+                        float distance = habitableZone.Max - this.distanceToSun;
+                        temperature = 15 * 1 - distance;
+                    }
+
+                    texel.Temperature = temperature * ((pressure - 0.5f) / (virtualDensity) + rand.Range(-0.3f, 1f));
+                    SetSurfaceTexel(x, y, texel);
+                }
+            }
         }
 
         private Texture GenerateHeightMap()
         {
-            float[,] height = GetNormalizedHeight();
+            float[,] heightIn = GetNormalizedHeight();
             for (int y = 0; y < 180; y++)
             {
                 for (int x = 0; x < 360; x++)
                 {
-                    if (height[x, y] < this.sealevel)
+                    if (heightIn[x, y] < this.sealevel)
                     {
-                        height[x, y] = this.sealevel;
+                        heightIn[x, y] = this.sealevel;
                     }
                 }
             }
 
-            height = height.Invert();
+            heightIn = heightIn.Invert();
 
+            /*
             for (int y = 0; y < 180; y++)
             {
                 for (int x = 0; x < 360; x++)
@@ -652,8 +838,22 @@ namespace Slartibartfast.Planets
                         height[x, y] = ((180 - y) / 90f) * height[x, y] + 1 - ((180 - y) / 90f);
                 }
             }
+            */
+            float[,] heightOut = new float[360, 180];
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    heightOut[x, y] = heightIn[x >= 180 ? x - 180 : x + 180, y >= 90 ? y - 90 : y + 90];
 
-            return new Texture(360, 180, ref height);
+                    if (y < 90)
+                        heightOut[x, y] = (y / 90f) * heightOut[x, y] + 1 - (y / 90f);
+
+                    if (y > 90)
+                        heightOut[x, y] = ((180 - y) / 90f) * heightOut[x, y] + 1 - ((180 - y) / 90f);
+                }
+            }
+            return new Texture(360, 180, ref heightOut);
         }
 
         /// <summary>
@@ -700,6 +900,87 @@ namespace Slartibartfast.Planets
             }
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        private void GenerateMoisture(Sun sun)
+        {
+            Simplex simplexNoise = new Simplex(100, 0.1, MathHelper.RandomSeed + 20);
+
+            int xResolution = 180;
+            int yResolution = 180;
+
+            int frequency = 128;
+
+            float[,] height = new float[xResolution, yResolution];
+
+            double maxsteps = xResolution * yResolution;
+
+            for (int x = 0; x < xResolution; x++)
+            {
+                for (int y = 0; y < yResolution; y++)
+                {
+                    float h = (float)simplexNoise.GetTileableFBM(x, y, 0, 256, 0, 256, xResolution, yResolution, frequency);
+
+                    SurfaceTexel texel = GetSurfaceTexel(x - 180, y - 90);
+                    SurfaceTexel texel1 = GetSurfaceTexel(x, y - 90);
+                    texel.Moisture = System.Math.Max(0, h * MathHelper.Abs(texel.Temperature));
+                    texel1.Moisture = System.Math.Max(0, h * MathHelper.Abs(texel1.Temperature));
+                    SetSurfaceTexel(x - 180, y - 90, texel);
+                    SetSurfaceTexel(x, y - 90, texel1);
+                }
+            }
+
+            MinMax<float> habitableZone = sun.GetHabitableZone();
+            if (habitableZone.Max > this.distanceToSun && habitableZone.Min < this.distanceToSun)
+            {
+                float max = 0;
+                for (int y = -90; y < 90; y++)
+                {
+                    for (int x = -180; x < 180; x++)
+                    {
+                        SurfaceTexel texel = GetSurfaceTexel(x, y);
+                        if (texel.Moisture > max)
+                            max = texel.Moisture;
+                    }
+                }
+
+                for (int y = -90; y < 90; y++)
+                {
+                    for (int x = -180; x < 180; x++)
+                    {
+                        SurfaceTexel texel = GetSurfaceTexel(x, y);
+                        texel.Moisture /= max;
+                        SetSurfaceTexel(x, y, texel);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Generates the sealevel. It is calculated by doubling the middlevalue of the moisture.
+        /// </summary>
+        private void GenerateOcean(Sun sun)
+        {
+            MinMax<float> habitableZone = sun.GetHabitableZone();
+
+            if (habitableZone.Max > this.distanceToSun && habitableZone.Min < this.distanceToSun)
+            {
+                float moisture = 0;
+                for (int y = -90; y < 90; y++)
+                {
+                    for (int x = -180; x < 180; x++)
+                    {
+                        SurfaceTexel texel = GetSurfaceTexel(x, y);
+                        moisture += texel.Moisture;
+                    }
+                }
+                sealevel = moisture / TEXEL_COUNT;
+            }
+            else
+                sealevel = 0;
+        }
+
         private void GenerateSurface()
         {
             for (int y = -90; y < 90; y++)
@@ -707,7 +988,7 @@ namespace Slartibartfast.Planets
                 for (int x = 0; x < 360; x++)
                 {
                     SurfaceTexel texel = GetSurfaceTexel(x, y);
-                    texel.NormalAngle = 1 - y / 90f;
+                    texel.NormalAngle = 1 - MathHelper.Abs(y / 90f);
                     SetSurfaceTexel(x, y, texel);
                 }
             }

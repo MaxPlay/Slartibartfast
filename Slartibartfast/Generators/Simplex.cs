@@ -17,7 +17,7 @@ namespace Slartibartfast.Generators
 
         #region Public Constructors
 
-        public Simplex(int largestFeature, double persistence)
+        public Simplex(int largestFeature, double persistence, int? seed = null)
         {
             this.largestFeature = largestFeature;
             this.persistence = persistence;
@@ -29,7 +29,7 @@ namespace Slartibartfast.Generators
             frequencys = new double[numberOfOctaves];
             amplitudes = new double[numberOfOctaves];
 
-            Random rnd = new Random(MathHelper.RandomSeed != null ? (int)MathHelper.RandomSeed : 0);
+            Random rnd = new Random(seed == null ? MathHelper.RandomSeed != null ? (int)MathHelper.RandomSeed : 0 : (int)seed);
 
             for (int i = 0; i < numberOfOctaves; i++)
             {

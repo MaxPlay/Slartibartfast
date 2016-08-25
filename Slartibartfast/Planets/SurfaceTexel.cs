@@ -1,4 +1,5 @@
 ﻿using Slartibartfast.Math;
+using System.Drawing;
 
 namespace Slartibartfast.Planets
 {
@@ -9,13 +10,12 @@ namespace Slartibartfast.Planets
         private Vector2 adjacentDirection;
         private Biome biome;
         private int distance;
+        private Color generatedColors;
         private float height;
         private float moisture;
         private float normalAngle;
         private int tectonicPlateID;
-
         private float temperature;
-
         private Vector2 windDirection;
 
         #endregion Private Fields
@@ -38,6 +38,12 @@ namespace Slartibartfast.Planets
         {
             get { return distance; }
             set { distance = value; }
+        }
+
+        public Color GeneratedColors
+        {
+            get { return generatedColors; }
+            set { generatedColors = value; }
         }
 
         public float Height

@@ -58,6 +58,7 @@
     <Compile Include="PlanetGenerator.cs" />
     <Compile Include="Planets\Atmosphere.cs" />
     <Compile Include="Planets\Biome.cs" />
+    <Compile Include="Planets\BiomeColors.cs" />
     <Compile Include="Planets\Planet.cs" />
     <Compile Include="Planets\PlanetSettings.cs" />
     <Compile Include="Planets\Sun.cs" />

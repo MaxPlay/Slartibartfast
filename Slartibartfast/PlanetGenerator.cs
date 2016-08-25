@@ -14,6 +14,14 @@ namespace Slartibartfast
         private TextureType outputTextures;
         private PlanetSettings planetSettings;
         private Sun sun;
+        private BiomeColors colors;
+
+        public BiomeColors BiomeColors
+        {
+            get { return colors; }
+            set { colors = value; }
+        }
+
 
         #endregion Private Fields
 
@@ -23,23 +31,19 @@ namespace Slartibartfast
         {
             MathHelper.RandomSeed = 1;
 
-            /*Planet planet = new Planet(PlanetSettings.Earth());
+            //Defaults
+            colors = new BiomeColors();
+            colors[Biome.Desert] = Color.Beige;
+            colors[Biome.Forest] = Color.ForestGreen;
+            colors[Biome.Grass] = Color.LawnGreen;
+            colors[Biome.Plains] = Color.SandyBrown;
+            colors[Biome.Ice] = Color.GhostWhite;
+            colors[Biome.Mountain] = Color.LightGray;
+            colors[Biome.Ocean] = Color.DarkBlue;
+            colors[Biome.Rainforest] = Color.DarkSeaGreen;
 
-            Color[,] plates = planet.GetTectonicPlates();
-            Texture tex = new Texture(360, 180, ref plates);
-            tex.SaveToFile("plates.png");
-
-            plates = planet.GetDistances();
-            tex = new Texture(360, 180, ref plates);
-            tex.SaveToFile("plates0.png");
-
-            float[,] height = planet.GetHeight();
-            tex = new Texture(360, 180, ref height);
-            tex.SaveToFile("height.png");
-
-            plates = planet.GetAdjacentMoveDirection();
-            tex = new Texture(360, 180, ref plates);
-            tex.SaveToFile("adjacent.png");*/
+            sun = Sun.GetSol();
+            planetSettings = PlanetSettings.Earth();
         }
 
         #endregion Public Constructors
@@ -77,12 +81,14 @@ namespace Slartibartfast
             if (sun == null)
                 sun = Sun.GetSol();
 
-            Planet planet = new Planet(planetSettings);
+            Planet planet = new Planet(planetSettings, sun);
             MinMax<float> habitableZone = sun.GetHabitableZone();
             float habitableZoneLocation = (planet.DistanceToSun - habitableZone.Min) / (habitableZone.Max - habitableZone.Min);
-            planet.GenerateVegetation();
+            
+            planet.GenerateVegetation(colors);
             outputTextures = outputTextures.Include(TextureType.Gloss);
             outputTextures = outputTextures.Include(TextureType.Height);
+            outputTextures = outputTextures.Include(TextureType.Color);
             Tuple<Texture, Texture, Texture> tex = planet.GenerateTextures(outputTextures);
 
             tex.Item1?.SaveToFile("color.png");
