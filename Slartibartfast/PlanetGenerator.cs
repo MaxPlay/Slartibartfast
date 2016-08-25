@@ -11,17 +11,13 @@ namespace Slartibartfast
     {
         #region Private Fields
 
+        private BiomeColors colors;
+        private Texture colorTex;
+        private Texture glossTex;
+        private Texture heightTex;
         private TextureType outputTextures;
         private PlanetSettings planetSettings;
         private Sun sun;
-        private BiomeColors colors;
-
-        public BiomeColors BiomeColors
-        {
-            get { return colors; }
-            set { colors = value; }
-        }
-
 
         #endregion Private Fields
 
@@ -50,6 +46,30 @@ namespace Slartibartfast
 
         #region Public Properties
 
+        public BiomeColors BiomeColors
+        {
+            get { return colors; }
+            set { colors = value; }
+        }
+
+        public Texture ColorTexture
+        {
+            get { return colorTex; }
+            set { colorTex = value; }
+        }
+
+        public Texture GlossTexture
+        {
+            get { return glossTex; }
+            set { glossTex = value; }
+        }
+
+        public Texture HeightTexture
+        {
+            get { return heightTex; }
+            set { heightTex = value; }
+        }
+
         public TextureType OutputTextures
         {
             get { return outputTextures; }
@@ -76,6 +96,9 @@ namespace Slartibartfast
             sun = null;
         }
 
+        /// <summary>
+        /// Runs the generator. This may take a while, so this is the method you want to put in another thread.
+        /// </summary>
         public void Run()
         {
             if (sun == null)
@@ -84,20 +107,34 @@ namespace Slartibartfast
             Planet planet = new Planet(planetSettings, sun);
             MinMax<float> habitableZone = sun.GetHabitableZone();
             float habitableZoneLocation = (planet.DistanceToSun - habitableZone.Min) / (habitableZone.Max - habitableZone.Min);
-            
+
             planet.GenerateVegetation(colors);
             outputTextures = outputTextures.Include(TextureType.Gloss);
             outputTextures = outputTextures.Include(TextureType.Height);
             outputTextures = outputTextures.Include(TextureType.Color);
             Tuple<Texture, Texture, Texture> tex = planet.GenerateTextures(outputTextures);
 
+            colorTex = tex.Item1;
+            heightTex = tex.Item2;
+            glossTex = tex.Item3;
+            /*
             tex.Item1?.SaveToFile("color.png");
             tex.Item2?.SaveToFile("height.png");
             tex.Item3?.SaveToFile("gloss.png");
 
             Color[,] plates = planet.GetWindMoveDirection();
             Texture t = new Texture(360, 180, ref plates);
-            t.SaveToFile("wind.png");
+            t.SaveToFile("wind.png");*/
+        }
+
+        /// <summary>
+        /// Saves textures if available.
+        /// </summary>
+        public void SaveTextures()
+        {
+            colorTex?.SaveToFile("color.png");
+            heightTex?.SaveToFile("height.png");
+            glossTex?.SaveToFile("gloss.png");
         }
 
         #endregion Public Methods
