@@ -35,7 +35,7 @@
         public static PlanetSettings Mars()
         {
             PlanetSettings s = new PlanetSettings();
-            s.DistanceToSun = 0.63f;
+            s.DistanceToSun = 1.63f;
             s.Mass = 0.11f;
             s.Radius = 3396;
             s.Age = 4500;
