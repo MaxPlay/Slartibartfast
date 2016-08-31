@@ -6,7 +6,7 @@ using System;
 
 namespace Slartibartfast
 {
-    public class PlanetGenerator : IDisposable
+    public sealed class PlanetGenerator : IDisposable
     {
         #region Private Fields
 
@@ -93,6 +93,7 @@ namespace Slartibartfast
         public void Dispose()
         {
             sun = null;
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -137,6 +138,33 @@ namespace Slartibartfast
             glossTex?.SaveToFile("gloss.png");
         }
         */
+
+
+        /// <summary>
+        /// Returns the Planet for debugreasons.
+        /// </summary>
+        /// <returns></returns>
+        public Planet RunDebug()
+        {
+            if (sun == null)
+                sun = Sun.GetSol();
+
+            Planet planet = new Planet(planetSettings, sun);
+            MinMax<float> habitableZone = sun.GetHabitableZone();
+            float habitableZoneLocation = (planet.DistanceToSun - habitableZone.Min) / (habitableZone.Max - habitableZone.Min);
+
+            planet.GenerateVegetation(colors);
+            outputTextures = outputTextures.Include(TextureType.Gloss);
+            outputTextures = outputTextures.Include(TextureType.Height);
+            outputTextures = outputTextures.Include(TextureType.Color);
+            TextureSet tex = planet.GenerateTextures(outputTextures);
+
+            colorTex = tex.ColorTexture;
+            heightTex = tex.HeightTexture;
+            glossTex = tex.GlossTexture;
+
+            return planet;
+        }
 
         #endregion Public Methods
     }

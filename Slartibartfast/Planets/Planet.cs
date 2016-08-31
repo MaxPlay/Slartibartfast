@@ -180,7 +180,7 @@ namespace Slartibartfast.Planets
         /// Gets the adjacent move directions (other plates adjacent to the current plate) as RGB values.
         /// </summary>
         /// <returns></returns>
-        public Color[,] GetAdjacentMoveDirection()
+        public Texture GetAdjacentMoveDirection()
         {
             Color[,] surf = new Color[360, 180];
 
@@ -194,7 +194,7 @@ namespace Slartibartfast.Planets
                 }
             }
 
-            return surf;
+            return new Texture(360, 180, ref surf);
         }
 
         /// <summary>
@@ -204,7 +204,7 @@ namespace Slartibartfast.Planets
         /// <returns>
         /// Two-dimensional array representing the distances to the borders of tectonic plates.
         /// </returns>
-        public Color[,] GetDistances()
+        public Texture GetDistances()
         {
             Color[,] surf = new Color[360, 180];
             float max = 0;
@@ -222,11 +222,11 @@ namespace Slartibartfast.Planets
                 for (int x = 0; x < 360; x++)
                 {
                     int col = max == 0 ? 0 : (int)((surface[x, y].Distance / max) * 255);
-                    surf[x, y] = new Color(255, col, col, col);
+                    surf[x, y] = new Color(col, col, col, 255);
                 }
             }
 
-            return surf;
+            return new Texture(360, 180, ref surf);
         }
 
         /// <summary>
@@ -301,9 +301,21 @@ namespace Slartibartfast.Planets
                 CoordinateX += 180;
             }
 
-            if (yRepeat % 2 == 1)
+
+            if (yRepeat >= 0)
             {
-                CoordinateY = 180 - CoordinateY;
+                if (yRepeat % 2 == 1)
+                {
+                    CoordinateY = 180 - CoordinateY;
+                }
+            }
+            else
+            {
+                yRepeat = System.Math.Abs(yRepeat);
+                if (yRepeat % 2 == 1)
+                {
+                    CoordinateY = (179 - CoordinateY);
+                }
             }
 
             while (CoordinateX < -180)
@@ -320,7 +332,7 @@ namespace Slartibartfast.Planets
         /// Gets a generated Color-Representation of the tectonic plates.
         /// </summary>
         /// <returns>Two-dimensional array representing the tectonic plates.</returns>
-        public Color[,] GetTectonicPlates()
+        public Texture GetTectonicPlates()
         {
             Color[,] surf = new Color[360, 180];
             for (int y = 0; y < 180; y++)
@@ -331,10 +343,10 @@ namespace Slartibartfast.Planets
                 }
             }
 
-            return surf;
+            return new Texture(360, 180, ref surf);
         }
 
-        public Color[,] GetWindMoveDirection()
+        public Texture GetWindMoveDirection()
         {
             Color[,] surf = new Color[360, 180];
 
@@ -347,11 +359,11 @@ namespace Slartibartfast.Planets
                         windDirection.Normalize();
                     int r = (int)((windDirection.X * 128f) + 128);
                     int g = (int)((windDirection.Y * 128f) + 128);
-                    surf[x, y] = new Color(255, r == 256 ? 255 : r, g == 256 ? 255 : g, 255); //Bugfix, don't think about it.
+                    surf[x, y] = new Color(r == 256 ? 255 : r, g == 256 ? 255 : g, 255, 255); //Bugfix, don't think about it.
                 }
             }
 
-            return surf;
+            return new Texture(360, 180, ref surf);
         }
 
         /// <summary>
@@ -383,9 +395,20 @@ namespace Slartibartfast.Planets
                 CoordinateX += 180;
             }
 
-            if (yRepeat % 2 == 1)
+            if (yRepeat >= 0)
             {
-                CoordinateY = 180 - CoordinateY;
+                if (yRepeat % 2 == 1)
+                {
+                    CoordinateY = 180 - CoordinateY;
+                }
+            }
+            else
+            {
+                yRepeat = System.Math.Abs(yRepeat);
+                if (yRepeat % 2 == 1)
+                {
+                    CoordinateY = (179 - CoordinateY);
+                }
             }
 
             while (CoordinateX < -180)
@@ -490,9 +513,10 @@ namespace Slartibartfast.Planets
                         multiplier = ((180 - (y + 90)) / 90f) * multiplier + 1 - ((180 - (y + 90)) / 90f);
 
                     multiplier--;
-                    multiplier *= 0.05f;
+                    multiplier *= 0.1f;
                     multiplier++;
                     texel.Height *= multiplier;
+                    texel.Height += tectonicPlates[texel.TectonicPlateID].HeightModifier * 0.01f;
                     SetSurfaceTexel(x, y, texel);
                 }
             }
@@ -505,10 +529,13 @@ namespace Slartibartfast.Planets
         /// </summary>
         /// <param name="limit">
         /// The limit of the extended border. This means that the extension never excedes over this
-        /// value. The defaulvalue is 15.
+        /// value. The defaulvalue is 25.
         /// </param>
         private void ExtendBorders(int limit = 25)
         {
+            if (limit <= 0)
+                limit = 1;
+
             int emptyTiles = 180 * 360;
             for (int y = -90; y < 90; y++)
             {
@@ -608,13 +635,13 @@ namespace Slartibartfast.Planets
 
             float[,] height = GetNormalizedHeight();
 
-            for (int y = 0; y < 180; y++)
+            for (int y = -90; y < 90; y++)
             {
-                for (int x = 0; x < 360; x++)
+                for (int x = -180; x < 180; x++)
                 {
                     SurfaceTexel texel = GetSurfaceTexel(x, y);
 
-                    if (height[x, y] < sealevel)
+                    if (height[x + 180, y + 90] < sealevel)
                         texel.Biome = Biome.Ocean;
                     else
                     {
@@ -628,17 +655,34 @@ namespace Slartibartfast.Planets
                         if (texel.Temperature < 0)
                             texel.Biome = Biome.Ice;
 
-                        if (height[x, y] > 0.9f)
+                        if (height[x + 180, y + 90] > 0.9f)
                             texel.Biome = Biome.Mountain;
+
+
+                        float[] adjTexel = new float[4];
+
+                        adjTexel[0] = GetSurfaceTexel(x - 1, y).Height;
+                        adjTexel[1] = GetSurfaceTexel(x + 1, y).Height;
+                        adjTexel[2] = GetSurfaceTexel(x, y - 1).Height;
+                        adjTexel[3] = GetSurfaceTexel(x, y + 1).Height;
+
+                        for (int i = 0; i < adjTexel.Length; i++)
+                        {
+                            if (adjTexel[i] - height[x + 180, y + 90] > 0.5f)
+                            {
+                                texel.Biome = Biome.Mountain;
+                                break;
+                            }
+                        }
                     }
 
                     SetSurfaceTexel(x, y, texel);
                 }
             }
 
-            for (int y = 0; y < 180; y++)
+            for (int y = -90; y < 90; y++)
             {
-                for (int x = 0; x < 360; x++)
+                for (int x = -180; x < 180; x++)
                 {
                     SurfaceTexel texel = GetSurfaceTexel(x, y);
 
@@ -650,9 +694,9 @@ namespace Slartibartfast.Planets
                     {
                         for (int x2 = -3; x2 < 3; x2++)
                         {
-                            if (x == 0 && y == 0)
+                            if (x2 == 0 && y2 == 0)
                                 continue;
-                            SurfaceTexel nextTexel = GetSurfaceTexel(x + x, y + y);
+                            SurfaceTexel nextTexel = GetSurfaceTexel(x + x2, y + y2);
                             if (nextTexel.Biome == Biome.Ocean || nextTexel.Biome == texel.Biome)
                                 count++;
                         }
@@ -663,7 +707,7 @@ namespace Slartibartfast.Planets
                         int _x = rand.Next(-1, 2);
                         int _y = rand.Next(-1, 2);
                         SurfaceTexel adjTexel = GetSurfaceTexel(x + _x, y + _y);
-                        if (adjTexel.Biome != Biome.Ocean)
+                        if (adjTexel.Biome != Biome.Ocean && adjTexel.Biome != Biome.Mountain)
                             texel.Biome = adjTexel.Biome;
                     }
                     SetSurfaceTexel(x, y, texel);
@@ -758,14 +802,31 @@ namespace Slartibartfast.Planets
                     }
                 }
             }
+
             for (int y = 0; y < 180; y++)
             {
                 for (int x = 0; x < 360; x++)
                 {
-                    heightOut[x, y] = heightIn[x, y >= 90 ? y - 90 : y + 90];
+                    int requestedX = x;
+                    int requestedY = y;
+                    if (y > 90)
+                    {
+                        if ((x - 180) < 0)
+                        {
+                            requestedX = x + 180;
+                        }
+                        else
+                        {
+                            requestedX = x - 180;
+                        }
+                    }
+                    else
+                        requestedX = x;
+
+                    heightOut[x, y] = heightIn[requestedX, y];// y >= 90 ? y - 90 : y + 90];
                 }
             }
-            return new Texture(360, 180, ref heightOut);
+            return new Texture(360, 180, ref heightIn);
         }
 
         /// <summary>
@@ -844,7 +905,7 @@ namespace Slartibartfast.Planets
                 for (int x = 0; x < 360; x++)
                 {
                     //heightOut[x, y] = heightIn[x >= 180 ? x - 180 : x + 180, y >= 90 ? y - 90 : y + 90];
-                    heightOut[x, y] = heightIn[x, y >= 90 ? y - 90 : y + 90];
+                    heightOut[x, y] = heightIn[x, y];// y >= 90 ? y - 90 : y + 90];
 
                     if (y < 90)
                         heightOut[x, y] = (y / 90f) * heightOut[x, y] + 1 - (y / 90f);
@@ -910,7 +971,7 @@ namespace Slartibartfast.Planets
             int xResolution = 180;
             int yResolution = 180;
 
-            int frequency = 128;
+            int frequency = 32;
 
             float[,] height = new float[xResolution, yResolution];
 
@@ -975,7 +1036,7 @@ namespace Slartibartfast.Planets
                         moisture += texel.Moisture;
                     }
                 }
-                sealevel = moisture / TEXEL_COUNT;
+                sealevel = moisture / TEXEL_COUNT * 1.1f;
             }
             else
                 sealevel = 0;
