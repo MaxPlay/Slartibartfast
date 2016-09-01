@@ -1,5 +1,4 @@
-﻿
-using Slartibartfast.Math;
+﻿using Slartibartfast.Math;
 
 namespace Slartibartfast.Planets
 {

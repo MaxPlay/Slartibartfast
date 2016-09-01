@@ -124,6 +124,7 @@ namespace Slartibartfast.Planets
 
         /// <summary>
         /// Calculates the habitable zone for the sun in AU.
+        /// The math behind it comes from http://www.planetarybiology.com/calculating_habitable_zone.html
         /// </summary>
         /// <returns></returns>
         public MinMax<float> GetHabitableZone()

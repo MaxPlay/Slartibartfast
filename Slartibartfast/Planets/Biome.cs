@@ -9,6 +9,7 @@
         Forest,
         Rainforest,
         Plains,
-        Ice
+        Ice,
+        Lava
     }
 }

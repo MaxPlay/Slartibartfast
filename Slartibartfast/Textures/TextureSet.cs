@@ -1,29 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Slartibartfast.Textures
+﻿namespace Slartibartfast.Textures
 {
     public class TextureSet
     {
-        private Texture colorTex;
+        #region Private Fields
 
-        public Texture ColorTexture
-        {
-            get { return colorTex; }
-            set { colorTex = value; }
-        }
+        private Texture colorTex;
 
         private Texture glossTex;
 
-        public Texture GlossTexture
-        {
-            get { return glossTex; }
-            set { glossTex = value; }
-        }
-
         private Texture heightTex;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public TextureSet(Texture color, Texture height, Texture gloss)
         {
@@ -32,10 +21,28 @@ namespace Slartibartfast.Textures
             this.glossTex = gloss;
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        public Texture ColorTexture
+        {
+            get { return colorTex; }
+            set { colorTex = value; }
+        }
+
+        public Texture GlossTexture
+        {
+            get { return glossTex; }
+            set { glossTex = value; }
+        }
+
         public Texture HeightTexture
         {
             get { return heightTex; }
             set { heightTex = value; }
         }
+
+        #endregion Public Properties
     }
 }

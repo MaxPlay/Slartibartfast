@@ -139,7 +139,6 @@ namespace Slartibartfast
         }
         */
 
-
         /// <summary>
         /// Returns the Planet for debugreasons.
         /// </summary>

@@ -230,6 +230,34 @@ namespace Slartibartfast.Planets
         }
 
         /// <summary>
+        /// Returns a Heatmap of the surface, comparable to the temperaturemaps, you can see on television.
+        /// </summary>
+        /// <returns></returns>
+        public Texture GetHeat()
+        {
+            Color[,] surf = new Color[360, 180];
+            float max = 0;
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    if (surface[x, y].Temperature > max)
+                        max = surface[x, y].Temperature;
+                }
+            }
+
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    surf[x, y] = Color.Lerp(new Color(0, 0, 255, 255), new Color(255, 0, 0, 255), surface[x, y].Temperature / max);
+                }
+            }
+
+            return new Texture(360, 180, ref surf);
+        }
+
+        /// <summary>
         /// Gets the heightmap as a two-dimensional array of floats.
         /// </summary>
         /// <returns></returns>
@@ -245,6 +273,25 @@ namespace Slartibartfast.Planets
             }
 
             return surf;
+        }
+
+        /// <summary>
+        /// Generates a Texturerepresentation of the Moisture of a Planet.
+        /// </summary>
+        /// <returns></returns>
+        public Texture GetMoisture()
+        {
+            Color[,] surf = new Color[360, 180];
+
+            for (int y = 0; y < 180; y++)
+            {
+                for (int x = 0; x < 360; x++)
+                {
+                    surf[x, y] = Color.Lerp(new Color(128, 128, 0, 255), new Color(0, 0, 255, 255), surface[x, y].Moisture);
+                }
+            }
+
+            return new Texture(360, 180, ref surf);
         }
 
         /// <summary>
@@ -300,7 +347,6 @@ namespace Slartibartfast.Planets
                 CoordinateY -= 180;
                 CoordinateX += 180;
             }
-
 
             if (yRepeat >= 0)
             {
@@ -533,6 +579,9 @@ namespace Slartibartfast.Planets
         /// </param>
         private void ExtendBorders(int limit = 25)
         {
+            if (this.tectonicPlates.Count < 2)
+                return;
+
             if (limit <= 0)
                 limit = 1;
 
@@ -646,18 +695,23 @@ namespace Slartibartfast.Planets
                     else
                     {
                         if (texel.Moisture < 0.1f)
-                            texel.Biome = texel.Temperature > 10f ? Biome.Desert : Biome.Ice;
-                        else if (texel.Moisture < 0.6f)
+                            texel.Biome = texel.Temperature > 5f ? Biome.Desert : Biome.Ice;
+                        else if (texel.Moisture < 0.5f)
                             texel.Biome = texel.Temperature > 20f ? Biome.Plains : Biome.Grass;
                         else
                             texel.Biome = texel.Temperature > 20f ? Biome.Rainforest : Biome.Forest;
 
+                        if (texel.Temperature / 70f > texel.Moisture)
+                            texel.Biome = Biome.Desert;
+
                         if (texel.Temperature < 0)
                             texel.Biome = Biome.Ice;
 
-                        if (height[x + 180, y + 90] > 0.9f)
+                        if (height[x + 180, y + 90] > 0.8f)
                             texel.Biome = Biome.Mountain;
 
+                        if (height[x + 180, y + 90] > 0.95f)
+                            texel.Biome = Biome.Ice;
 
                         float[] adjTexel = new float[4];
 
@@ -668,7 +722,7 @@ namespace Slartibartfast.Planets
 
                         for (int i = 0; i < adjTexel.Length; i++)
                         {
-                            if (adjTexel[i] - height[x + 180, y + 90] > 0.5f)
+                            if (adjTexel[i] - height[x + 180, y + 90] > 0.55f)
                             {
                                 texel.Biome = Biome.Mountain;
                                 break;
@@ -707,7 +761,7 @@ namespace Slartibartfast.Planets
                         int _x = rand.Next(-1, 2);
                         int _y = rand.Next(-1, 2);
                         SurfaceTexel adjTexel = GetSurfaceTexel(x + _x, y + _y);
-                        if (adjTexel.Biome != Biome.Ocean && adjTexel.Biome != Biome.Mountain)
+                        if (adjTexel.Biome != Biome.Ocean && adjTexel.Biome != Biome.Mountain && adjTexel.Biome != Biome.Ice)
                             texel.Biome = adjTexel.Biome;
                     }
                     SetSurfaceTexel(x, y, texel);
@@ -830,7 +884,7 @@ namespace Slartibartfast.Planets
         }
 
         /// <summary>
-        ///
+        /// Generates heatvalues for the SurfaceTexels based on the Atmosphere and Sun.
         /// </summary>
         /// <param name="sun"></param>
         private void GenerateHeat(Sun sun)
@@ -842,7 +896,7 @@ namespace Slartibartfast.Planets
                 {
                     SurfaceTexel texel = GetSurfaceTexel(x, y);
                     float pressure = (float)(atmosphere.PressureAtSealevel - System.Math.Exp(-atmosphere.ScaleHeight * texel.Height));
-                    float virtualDensity = pressure + (0.5f - texel.NormalAngle) * pressure;
+                    float virtualDensity = pressure + (0.4f - texel.NormalAngle) * pressure;
 
                     //This is cheating. What I do here is the following: As long as I stay within the habitable zone, my temperature stays within a range of 15-25 °C, this makes sure that the planet can keep things alive.
                     MinMax<float> habitableZone = sun.GetHabitableZone();
@@ -856,15 +910,15 @@ namespace Slartibartfast.Planets
                     else if (habitableZone.Max <= this.distanceToSun)
                     {
                         float distance = habitableZone.Max - this.distanceToSun;
-                        temperature = 30 * distance;
+                        temperature = 15 * (1 - distance);
                     }
                     else
                     {
-                        float distance = habitableZone.Max - this.distanceToSun;
-                        temperature = 15 * 1 - distance;
+                        float distance = -this.distanceToSun * habitableZone.Min;
+                        temperature = 30 * (1 - distance);
                     }
 
-                    texel.Temperature = temperature * ((pressure - 0.5f) / (virtualDensity) + rand.Range(-0.3f, 1f));
+                    texel.Temperature = temperature * ((pressure - 0.5f) / (virtualDensity) + rand.Range(-0.3f, 1f));// - (0.7f - texel.NormalAngle) * 10f; //Experiments over an hour. This stays. Sorry.
                     SetSurfaceTexel(x, y, texel);
                 }
             }
@@ -966,6 +1020,9 @@ namespace Slartibartfast.Planets
         /// </summary>
         private void GenerateMoisture(Sun sun)
         {
+            if (atmosphere == null)
+                return;
+
             Simplex simplexNoise = new Simplex(100, 0.1, MathHelper.RandomSeed + 20);
 
             int xResolution = 180;
@@ -993,27 +1050,25 @@ namespace Slartibartfast.Planets
             }
 
             MinMax<float> habitableZone = sun.GetHabitableZone();
-            if (habitableZone.Max > this.distanceToSun && habitableZone.Min < this.distanceToSun)
-            {
-                float max = 0;
-                for (int y = -90; y < 90; y++)
-                {
-                    for (int x = -180; x < 180; x++)
-                    {
-                        SurfaceTexel texel = GetSurfaceTexel(x, y);
-                        if (texel.Moisture > max)
-                            max = texel.Moisture;
-                    }
-                }
 
-                for (int y = -90; y < 90; y++)
+            float max = 0;
+            for (int y = -90; y < 90; y++)
+            {
+                for (int x = -180; x < 180; x++)
                 {
-                    for (int x = -180; x < 180; x++)
-                    {
-                        SurfaceTexel texel = GetSurfaceTexel(x, y);
-                        texel.Moisture /= max;
-                        SetSurfaceTexel(x, y, texel);
-                    }
+                    SurfaceTexel texel = GetSurfaceTexel(x, y);
+                    if (texel.Moisture > max)
+                        max = texel.Moisture;
+                }
+            }
+
+            for (int y = -90; y < 90; y++)
+            {
+                for (int x = -180; x < 180; x++)
+                {
+                    SurfaceTexel texel = GetSurfaceTexel(x, y);
+                    texel.Moisture /= max;
+                    SetSurfaceTexel(x, y, texel);
                 }
             }
         }

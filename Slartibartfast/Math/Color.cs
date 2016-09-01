@@ -1,37 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Slartibartfast.Math
+﻿namespace Slartibartfast.Math
 {
     public struct Color
     {
-        private byte r;
-
-        public byte R
-        {
-            get { return r; }
-            set { r = value; }
-        }
-
-        private byte g;
-
-        public byte G
-        {
-            get { return g; }
-            set { g = value; }
-        }
-
-        private byte b;
-
-        public byte B
-        {
-            get { return b; }
-            set { b = value; }
-        }
+        #region Private Fields
 
         private byte a;
+        private byte b;
+        private byte g;
+        private byte r;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public Color(int r, int g, int b) : this(r, g, b, 255)
         {
@@ -45,11 +25,41 @@ namespace Slartibartfast.Math
             this.a = (byte)a;
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        public static Color Black { get { return new Color(0, 0, 0, 255); } }
+
+        public static Color White { get { return new Color(255, 255, 255, 255); } }
+
         public byte A
         {
             get { return a; }
             set { a = value; }
         }
+
+        public byte B
+        {
+            get { return b; }
+            set { b = value; }
+        }
+
+        public byte G
+        {
+            get { return g; }
+            set { g = value; }
+        }
+
+        public byte R
+        {
+            get { return r; }
+            set { r = value; }
+        }
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public static Color Lerp(Color c1, Color c2, float value)
         {
@@ -66,7 +76,6 @@ namespace Slartibartfast.Math
                 );
         }
 
-        public static Color Black { get { return new Color(0, 0, 0, 255); } }
-        public static Color White { get { return new Color(255, 255, 255, 255); } }
+        #endregion Public Methods
     }
 }

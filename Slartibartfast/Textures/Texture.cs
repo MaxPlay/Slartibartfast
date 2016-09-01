@@ -1,6 +1,5 @@
 ﻿using Slartibartfast.Extensions;
 using Slartibartfast.Math;
-using System.IO;
 
 namespace Slartibartfast.Textures
 {
@@ -67,8 +66,6 @@ namespace Slartibartfast.Textures
 
         #endregion Public Properties
 
-        #region Public Methods
-
         /*
         public void SaveToFile(string filename, bool overwrite = true)
         {
@@ -79,6 +76,8 @@ namespace Slartibartfast.Textures
             ToBitmap(this.color, width, height).Save(filename, ImageFormat.Png);
         }
         */
+
+        #region Public Methods
 
         public void SetColorData(ref Color[,] array)
         {
@@ -108,6 +107,8 @@ namespace Slartibartfast.Textures
                 }
             }
         }
+
+        #endregion Private Methods
 
         /*
         /// <summary>
@@ -143,22 +144,12 @@ namespace Slartibartfast.Textures
             return Image;
         }
 
-        #endregion Private Methods
-
-        #region Private Structs
-
         private struct ColorARGB
         {
-            #region Public Fields
-
             public byte A;
             public byte B;
             public byte G;
             public byte R;
-
-            #endregion Public Fields
-
-            #region Public Constructors
 
             public ColorARGB(System.Drawing.Color color)
             {
@@ -176,19 +167,11 @@ namespace Slartibartfast.Textures
                 B = b;
             }
 
-            #endregion Public Constructors
-
-            #region Public Methods
-
             public System.Drawing.Color ToColor()
             {
                 return System.Drawing.Color.FromArgb(A, R, G, B);
             }
-
-            #endregion Public Methods
-            
         }
         */
-        #endregion Private Structs
     }
 }

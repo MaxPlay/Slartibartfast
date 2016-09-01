@@ -8,30 +8,7 @@ namespace SlartibartfastTest
 {
     internal class Program
     {
-        #region Private Methods
-
-        private static void Main(string[] args)
-        {
-            using (PlanetGenerator generator = new PlanetGenerator())
-            {
-                PlanetSettings settings = PlanetSettings.Earth();
-
-                generator.PlanetSettings = settings;
-
-                Planet planet = generator.RunDebug();
-
-                planet.GetDistances().ToBitmap().Save("distances.png", ImageFormat.Png);
-                float[,] height = planet.GetNormalizedHeight();
-                new Texture(360, 180, ref height).ToBitmap().Save("heightmap.png", ImageFormat.Png);
-                planet.GetTectonicPlates().ToBitmap().Save("plates.png", ImageFormat.Png);
-                planet.GetWindMoveDirection().ToBitmap().Save("wind.png", ImageFormat.Png);
-
-                generator.ColorTexture.ToBitmap().Save("color.png", ImageFormat.Png);
-                generator.HeightTexture.ToBitmap().Save("height.png", ImageFormat.Png);
-                generator.GlossTexture.ToBitmap().Save("gloss.png", ImageFormat.Png);
-
-            }
-        }
+        #region Public Methods
 
         /// <summary>
         /// Taken from one of my own projects. This is originally coming from: http://stackoverflow.com/questions/13511661/create-bitmap-from-double-two-dimentional-array
@@ -64,6 +41,34 @@ namespace SlartibartfastTest
 
             Image.UnlockBits(bitmapData);
             return Image;
+        }
+
+        #endregion Public Methods
+
+        #region Private Methods
+
+        private static void Main(string[] args)
+        {
+            using (PlanetGenerator generator = new PlanetGenerator())
+            {
+                PlanetSettings settings = PlanetSettings.Earth();
+
+                generator.PlanetSettings = settings;
+
+                Planet planet = generator.RunDebug();
+
+                planet.GetDistances().ToBitmap().Save("distances.png", ImageFormat.Png);
+                float[,] height = planet.GetNormalizedHeight();
+                new Texture(360, 180, ref height).ToBitmap().Save("heightmap.png", ImageFormat.Png);
+                planet.GetTectonicPlates().ToBitmap().Save("plates.png", ImageFormat.Png);
+                planet.GetWindMoveDirection().ToBitmap().Save("wind.png", ImageFormat.Png);
+                planet.GetHeat().ToBitmap().Save("heat.png", ImageFormat.Png);
+                planet.GetMoisture().ToBitmap().Save("moisture.png", ImageFormat.Png);
+
+                generator.ColorTexture.ToBitmap().Save("color.png", ImageFormat.Png);
+                generator.HeightTexture.ToBitmap().Save("height.png", ImageFormat.Png);
+                generator.GlossTexture.ToBitmap().Save("gloss.png", ImageFormat.Png);
+            }
         }
 
         #endregion Private Methods
@@ -109,9 +114,8 @@ namespace SlartibartfastTest
             }
 
             #endregion Public Methods
-
         }
 
-        #endregion Private Methods
+        #endregion Private Structs
     }
 }
