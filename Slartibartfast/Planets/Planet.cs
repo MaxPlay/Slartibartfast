@@ -466,7 +466,7 @@ namespace Slartibartfast.Planets
             int y = CoordinateY;
             surface[x, y] = texel;
         }
-
+        
         #endregion Public Methods
 
         #region Internal Methods
@@ -705,7 +705,7 @@ namespace Slartibartfast.Planets
                             texel.Biome = Biome.Desert;
 
                         if (texel.Temperature < 0)
-                            texel.Biome = Biome.Ice;
+                            texel.Biome = texel.Moisture > 0f ? Biome.Ice : Biome.Desert;
 
                         if (height[x + 180, y + 90] > 0.8f)
                             texel.Biome = Biome.Mountain;
