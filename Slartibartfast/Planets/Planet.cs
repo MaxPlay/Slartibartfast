@@ -466,7 +466,7 @@ namespace Slartibartfast.Planets
             int y = CoordinateY;
             surface[x, y] = texel;
         }
-        
+
         #endregion Public Methods
 
         #region Internal Methods
@@ -600,7 +600,7 @@ namespace Slartibartfast.Planets
             int limitheight = limit;
             while (emptyTiles > 0)
             {
-                Console.WriteLine(emptyTiles);
+                //Console.WriteLine(emptyTiles);
 
                 for (int y = -90; y < 90; y++)
                 {
@@ -683,13 +683,13 @@ namespace Slartibartfast.Planets
             Random rand = new Random(MathHelper.RandomSeed != null ? (int)MathHelper.RandomSeed : 0);
 
             float[,] height = GetNormalizedHeight();
-
+            
             for (int y = -90; y < 90; y++)
             {
                 for (int x = -180; x < 180; x++)
                 {
                     SurfaceTexel texel = GetSurfaceTexel(x, y);
-
+                    
                     if (height[x + 180, y + 90] < sealevel)
                         texel.Biome = Biome.Ocean;
                     else
@@ -712,7 +712,7 @@ namespace Slartibartfast.Planets
 
                         if (height[x + 180, y + 90] > 0.95f)
                             texel.Biome = Biome.Ice;
-
+                        
                         float[] adjTexel = new float[4];
 
                         adjTexel[0] = GetSurfaceTexel(x - 1, y).Height;
@@ -849,10 +849,17 @@ namespace Slartibartfast.Planets
                     }
                     else
                     {
-                        if (surface[x, y].Moisture >= 0.95f)
-                            heightIn[x, y] = 0.2f;
+                        if (surface[x, y].Biome != Biome.Ice)
+                        {
+                            if (surface[x, y].Moisture >= 0.95f)
+                                heightIn[x, y] = 0.2f;
+                            else
+                                heightIn[x, y] = 1;
+                        }
                         else
-                            heightIn[x, y] = 1;
+                        {
+                            heightIn[x, y] = 0.5f;
+                        }
                     }
                 }
             }
@@ -989,19 +996,19 @@ namespace Slartibartfast.Planets
 
             int steps = 0;
             double maxsteps = xResolution * yResolution;
-            int percent = 0;
+            //int percent = 0;
 
             for (int x = 0; x < xResolution; x++)
             {
                 for (int y = 0; y < yResolution; y++)
                 {
-                    if (percent < (steps / maxsteps) * 100)
+                    /*if (percent < (steps / maxsteps) * 100)
                     {
                         percent++;
                         Console.Clear();
                         Console.WriteLine("Generating Tileable FBM Simplex Noise.");
                         Console.WriteLine("{0}%", percent);
-                    }
+                    }*/
                     steps++;
                     float h = (float)simplexNoise.GetTileableFBM(x, y, 0, 256, 0, 256, xResolution, yResolution, frequency);
 
@@ -1152,7 +1159,7 @@ namespace Slartibartfast.Planets
             int emptyTiles = 180 * 360 - this.tectonicPlatesCount;
             while (emptyTiles > 0)
             {
-                Console.WriteLine(emptyTiles);
+                //Console.WriteLine(emptyTiles);
 
                 for (int y = -90; y < 90; y++)
                 {
