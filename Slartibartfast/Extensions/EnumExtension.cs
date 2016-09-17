@@ -13,7 +13,7 @@ namespace Slartibartfast.Extensions
     /// <summary>
     /// Extension methods to make working with Enum values easier
     /// </summary>
-    public static class EnumerationExtensions
+    internal static class EnumerationExtensions
     {
         #region Public Methods
 

@@ -1,6 +1,6 @@
 ﻿namespace Slartibartfast.Extensions
 {
-    public static class ArrayExtensions
+    internal static class ArrayExtensions
     {
         #region Public Methods
 

@@ -2,7 +2,7 @@
 
 namespace Slartibartfast.Generators.NoiseUNUSED
 {
-    public class Fractal : Noise
+    internal class Fractal : Noise
     {
         #region Protected Fields
 

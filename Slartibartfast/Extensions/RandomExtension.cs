@@ -3,7 +3,7 @@ using System;
 
 namespace Slartibartfast.Extensions
 {
-    public static class RandomExtension
+    internal static class RandomExtension
     {
         #region Public Methods
 

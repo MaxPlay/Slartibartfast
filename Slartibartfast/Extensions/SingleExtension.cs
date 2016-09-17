@@ -1,10 +1,10 @@
 ﻿namespace Slartibartfast.Extensions
 {
-    public static class SingleExtension
+    internal static class SingleExtension
     {
         #region Public Methods
 
-        public static float[] ToVectorArray(this float f)
+        internal static float[] ToVectorArray(this float f)
         {
             return new float[] { f };
         }

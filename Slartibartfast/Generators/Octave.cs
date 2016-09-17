@@ -20,7 +20,7 @@ using System;
 
 namespace Slartibartfast.Generators
 {
-    public class Octave
+    internal class Octave
     {  // Simplex noise in 2D, 3D and 4D
         #region Public Fields
 

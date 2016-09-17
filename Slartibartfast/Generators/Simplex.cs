@@ -3,7 +3,7 @@ using System;
 
 namespace Slartibartfast.Generators
 {
-    public class Simplex
+    internal class Simplex
     {
         #region Private Fields
 

@@ -3,7 +3,7 @@ using System;
 
 namespace Slartibartfast.Generators.NoiseUNUSED
 {
-    public class Noise
+    internal class Noise
     {
         #region Protected Fields
 

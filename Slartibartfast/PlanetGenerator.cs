@@ -54,19 +54,16 @@ namespace Slartibartfast
         public Texture ColorTexture
         {
             get { return colorTex; }
-            set { colorTex = value; }
         }
 
         public Texture GlossTexture
         {
             get { return glossTex; }
-            set { glossTex = value; }
         }
 
         public Texture HeightTexture
         {
             get { return heightTex; }
-            set { heightTex = value; }
         }
 
         public TextureType OutputTextures
@@ -143,6 +140,7 @@ namespace Slartibartfast
         /// Returns the Planet for debugreasons.
         /// </summary>
         /// <returns></returns>
+        
         public Planet RunDebug()
         {
             if (sun == null)

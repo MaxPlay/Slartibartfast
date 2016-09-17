@@ -1,4 +1,5 @@
 ﻿using Slartibartfast;
+using Slartibartfast.Extensions;
 using Slartibartfast.Planets;
 using Slartibartfast.Textures;
 using System.Drawing;
@@ -51,6 +52,7 @@ namespace SlartibartfastTest
         {
             using (PlanetGenerator generator = new PlanetGenerator())
             {
+                MathHelper.RandomSeed = 3;
                 PlanetSettings settings = PlanetSettings.Earth();
 
                 generator.PlanetSettings = settings;

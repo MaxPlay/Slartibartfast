@@ -2,7 +2,7 @@
 
 namespace Slartibartfast.Planets
 {
-    public struct WindPoint
+    internal struct WindPoint
     {
         #region Public Fields
 
