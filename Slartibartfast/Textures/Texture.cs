@@ -31,13 +31,19 @@ namespace Slartibartfast.Textures
         }
 
         public Texture(int width, int height, ref float[,] array)
+            : this(width, height, ref array, false)
+        {
+            
+        }
+
+        public Texture(int width, int height, ref float[,] array, bool fromNormalized)
         {
             this.width = width;
             this.height = height;
             color = new Color[width * height];
 
-            float highestValue = array.GetHighestValue();
-            float lowestValue = array.GetLowestValue();
+            float highestValue = fromNormalized ? 1: array.GetHighestValue();
+            float lowestValue = fromNormalized ? 0 : array.GetLowestValue();
 
             for (int y = 0; y < height; y++)
             {

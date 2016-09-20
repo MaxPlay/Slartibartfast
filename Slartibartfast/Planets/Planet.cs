@@ -710,10 +710,13 @@ namespace Slartibartfast.Planets
                         if (height[x + 180, y + 90] > 0.8f)
                             texel.Biome = Biome.Mountain;
 
-                        if (height[x + 180, y + 90] > 0.95f)
+                        if (height[x + 180, y + 90] > 0.95f && atmosphere != null)
                             texel.Biome = Biome.Ice;
                         
                         float[] adjTexel = new float[4];
+
+                        if (texel.Biome == Biome.Ice && atmosphere == null)
+                            texel.Biome = Biome.Desert;
 
                         adjTexel[0] = GetSurfaceTexel(x - 1, y).Height;
                         adjTexel[1] = GetSurfaceTexel(x + 1, y).Height;
@@ -887,7 +890,7 @@ namespace Slartibartfast.Planets
                     heightOut[x, y] = heightIn[requestedX, y];// y >= 90 ? y - 90 : y + 90];
                 }
             }
-            return new Texture(360, 180, ref heightIn);
+            return new Texture(360, 180, ref heightIn, true);
         }
 
         /// <summary>
@@ -896,6 +899,9 @@ namespace Slartibartfast.Planets
         /// <param name="sun"></param>
         private void GenerateHeat(Sun sun)
         {
+            if (atmosphere == null)
+                return;
+
             Random rand = new Random(MathHelper.RandomSeed == null ? 0 : (int)MathHelper.RandomSeed);
             for (int y = -90; y < 90; y++)
             {
@@ -1085,6 +1091,12 @@ namespace Slartibartfast.Planets
         /// </summary>
         private void GenerateOcean(Sun sun)
         {
+            if (atmosphere == null)
+            {
+                sealevel = -1;
+                return;
+            }
+
             MinMax<float> habitableZone = sun.GetHabitableZone();
 
             if (habitableZone.Max > this.distanceToSun && habitableZone.Min < this.distanceToSun)

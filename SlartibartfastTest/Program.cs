@@ -2,8 +2,12 @@
 using Slartibartfast.Extensions;
 using Slartibartfast.Planets;
 using Slartibartfast.Textures;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
 
 namespace SlartibartfastTest
 {
@@ -50,27 +54,61 @@ namespace SlartibartfastTest
 
         private static void Main(string[] args)
         {
-            using (PlanetGenerator generator = new PlanetGenerator())
+            List<TimeSpan> spans = new List<TimeSpan>();
+            for (int i = 1; i <= 500; i++)
             {
-                MathHelper.RandomSeed = 3;
-                PlanetSettings settings = PlanetSettings.Earth();
+                DateTime time = DateTime.Now;
+                Console.WriteLine("{0}: {1}", i, time);
+                using (PlanetGenerator generator = new PlanetGenerator())
+                {
+                    MathHelper.RandomSeed = 3;
+                    PlanetSettings settings = PlanetSettings.Earth();
 
-                generator.PlanetSettings = settings;
+                    generator.PlanetSettings = settings;
 
-                Planet planet = generator.RunDebug();
+                    Planet planet = generator.RunDebug();
 
-                planet.GetDistances().ToBitmap().Save("distances.png", ImageFormat.Png);
-                float[,] height = planet.GetNormalizedHeight();
-                new Texture(360, 180, ref height).ToBitmap().Save("heightmap.png", ImageFormat.Png);
-                planet.GetTectonicPlates().ToBitmap().Save("plates.png", ImageFormat.Png);
-                planet.GetWindMoveDirection().ToBitmap().Save("wind.png", ImageFormat.Png);
-                planet.GetHeat().ToBitmap().Save("heat.png", ImageFormat.Png);
-                planet.GetMoisture().ToBitmap().Save("moisture.png", ImageFormat.Png);
+                    planet.GetDistances().ToBitmap().Save("distances.png", ImageFormat.Png);
+                    float[,] height = planet.GetNormalizedHeight();
+                    new Texture(360, 180, ref height, true).ToBitmap().Save("heightmap.png", ImageFormat.Png);
+                    planet.GetTectonicPlates().ToBitmap().Save("plates.png", ImageFormat.Png);
+                    planet.GetWindMoveDirection().ToBitmap().Save("wind.png", ImageFormat.Png);
+                    planet.GetHeat().ToBitmap().Save("heat.png", ImageFormat.Png);
+                    planet.GetMoisture().ToBitmap().Save("moisture.png", ImageFormat.Png);
 
-                generator.ColorTexture.ToBitmap().Save("color.png", ImageFormat.Png);
-                generator.HeightTexture.ToBitmap().Save("height.png", ImageFormat.Png);
-                generator.GlossTexture.ToBitmap().Save("gloss.png", ImageFormat.Png);
+                    generator.ColorTexture.ToBitmap().Save("color.png", ImageFormat.Png);
+                    generator.HeightTexture.ToBitmap().Save("height.png", ImageFormat.Png);
+                    generator.GlossTexture.ToBitmap().Save("gloss.png", ImageFormat.Png);
+                }
+
+                TimeSpan span = DateTime.Now - time;
+
+                Console.WriteLine("{0}: {1}", i, DateTime.Now);
+                Console.WriteLine("{0}: {1}", i, "Finished after: ");
+                Console.WriteLine("{0}: {1}", i, span);
+                spans.Add(span);
             }
+
+            double doubleAverageTicks = spans.Average(timeSpan => timeSpan.Ticks);
+            long longAverageTicks = Convert.ToInt64(doubleAverageTicks);
+
+            using (FileStream stream = File.OpenWrite("t.txt"))
+            {
+                using (StreamWriter writer = new StreamWriter(stream))
+                {
+                    foreach (TimeSpan item in spans)
+                    {
+                        writer.WriteLine(item.TotalSeconds);
+                    }
+                }
+            }
+
+            TimeSpan average = new TimeSpan(longAverageTicks);
+
+            Console.WriteLine();
+            Console.WriteLine("Average Time:");
+            Console.WriteLine(average);
+            Console.ReadLine();
         }
 
         #endregion Private Methods
